@@ -1,5 +1,5 @@
 install:
-  - curl -O vagrant.deb https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb
+  - curl -o vagrant.deb https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb
   - dpkg -i vagrant.deb
 before_script:
   - ln -s testing/testing-config.yml vagrant-config.yml
