@@ -1,11 +1,10 @@
 install:
   - curl -o vagrant.deb https://releases.hashicorp.com/vagrant/1.8.1/vagrant_1.8.1_x86_64.deb
-  - dpkg -i vagrant.deb
+  - sudo dpkg -i vagrant.deb
 before_script:
   - ln -s testing/testing-config.yml vagrant-config.yml
 script: 
-  - python2 testing/test-health-checks.py
-  - docker run $DOCKER_ARGS -v $(pwd)/testing:/local -v $(pwd):/mantl $DOCKER_SECRETS $DOCKER_IMAGE "python docker.py ci-build"
+  - vagrant up
 sudo: required
 notifications:
   slack:
