@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Custom Playbook &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Getting Started" href="index.html" />
+    <link rel="next" title="Using the Dockerfile" href="dockerfile.html" />
+    <link rel="prev" title="Adding SSH Users" href="ssh_users.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dockerfile.html" title="Using the Dockerfile"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ssh_users.html" title="Adding SSH Users"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Getting Started</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="custom-playbook">
+<h1>Custom Playbook<a class="headerlink" href="#custom-playbook" title="Permalink to this headline">¶</a></h1>
+<p>Your customized <tt class="docutils literal"><span class="pre">mantl.yml</span></tt> <a class="reference external" href="http://docs.ansible.com/playbooks.html">playbook</a> should be used to deploy
+Mantl to your servers.</p>
+<p>Below is an annotated playbook explaining the values:</p>
+<div class="highlight-yaml+jinja"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="c1"># CHECK SECURITY - when customizing you should leave this in. If you</span>
+<span class="c1"># take it out and forget to specify security.yml, security could be turned off</span>
+<span class="c1"># on components in your cluster!</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">include</span><span class="p p-Indicator">:</span> <span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">playbook_dir</span> <span class="cp">}}</span><span class="s">/playbooks/check-requirements.yml&quot;</span>
+
+<span class="c1"># BASICS - we need every node in the cluster to have common software running to</span>
+<span class="c1"># increase stability and enable service discovery. You can look at the</span>
+<span class="c1"># documentation for each of these components in their README file in the</span>
+<span class="c1"># `roles/` directory, or by checking the online documentation at</span>
+<span class="c1"># docs.mantl.io.</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">all</span>
+  <span class="l l-Scalar l-Scalar-Plain">vars</span><span class="p p-Indicator">:</span>
+    <span class="c1"># consul_acl_datacenter should be set to the datacenter you want to control</span>
+    <span class="c1"># Consul ACLs. If you only have one datacenter, set it to that or remove</span>
+    <span class="c1"># this variable.</span>
+    <span class="c1"># consul_acl_datacenter: your_primary_datacenter</span>
+
+    <span class="l l-Scalar l-Scalar-Plain">consul_servers_group</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">common</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">lvm</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">docker</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">logrotate</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">consul-template</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">nginx</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">consul</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">etcd</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dnsmasq</span>
+
+<span class="c1"># ROLES - after provisioning the software that&#39;s common to all hosts, we do</span>
+<span class="c1"># specialized hosts. This configuration has two major groups: control nodes and</span>
+<span class="c1"># worker nodes. We provision the worker nodes first so that we don&#39;t create any</span>
+<span class="c1"># race conditions. This could happen in the Mesos components - if there are no</span>
+<span class="c1"># worker nodes when trying to schedule control software, the deployment process</span>
+<span class="c1"># would hang.</span>
+<span class="c1">#</span>
+<span class="c1"># The worker role itself has a minimal configuration, as it&#39;s designed mainly to</span>
+<span class="c1"># run software that the Mesos leader shedules. It also forwards traffic to</span>
+<span class="c1"># globally known ports configured through Marathon.</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=worker</span>
+  <span class="c1"># role=worker hosts are a subset of &quot;all&quot;. Since we already gathered facts on</span>
+  <span class="c1"># all servers, we can skip it here to speed up the deployment.</span>
+  <span class="l l-Scalar l-Scalar-Plain">gather_facts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">no</span>
+  <span class="l l-Scalar l-Scalar-Plain">vars</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">mesos_mode</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">follower</span>
+    <span class="l l-Scalar l-Scalar-Plain">zookeeper_server_group</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mesos</span>
+
+<span class="c1"># the control nodes are necessarily more complex than the worker nodes, and have</span>
+<span class="c1"># ZooKeeper, Mesos, and Marathon leaders. In addition, they control Vault to</span>
+<span class="c1"># manage secrets in the cluster. These servers do not run applications by</span>
+<span class="c1"># themselves, they only schedule work. That said, there should be at least 3 of</span>
+<span class="c1"># them (and always an odd number) so that ZooKeeper can get and keep a quorum.</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+  <span class="l l-Scalar l-Scalar-Plain">gather_facts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="l l-Scalar l-Scalar-Plain">vars</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">consul_servers_group</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+    <span class="l l-Scalar l-Scalar-Plain">mesos_leaders_group</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+    <span class="l l-Scalar l-Scalar-Plain">mesos_mode</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">leader</span>
+    <span class="l l-Scalar l-Scalar-Plain">zookeeper_server_group</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=control</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">vault</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">zookeeper</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mesos</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">marathon</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">mantlui</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">kubernetes-master</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">kubernetes-addons</span>
+
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=kubeworker</span>
+  <span class="c1"># role=worker hosts are a subset of &quot;all&quot;. Since we already gathered facts on</span>
+  <span class="c1"># all servers, we can skip it here to speed up the deployment.</span>
+  <span class="l l-Scalar l-Scalar-Plain">gather_facts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="l l-Scalar l-Scalar-Plain">vars</span><span class="p p-Indicator">:</span>
+    <span class="l l-Scalar l-Scalar-Plain">consul_dns_domain</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">consul</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">flannel</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">kubernetes-node</span>
+
+<span class="c1"># The edge role exists solely for routing traffic into the cluster. Firewall</span>
+<span class="c1"># settings should be such that web traffic (ports 80 and 443) is exposed to the</span>
+<span class="c1"># world.</span>
+<span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hosts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">role=edge</span>
+  <span class="l l-Scalar l-Scalar-Plain">gather_facts</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+  <span class="l l-Scalar l-Scalar-Plain">vars</span><span class="p p-Indicator">:</span>
+    <span class="c1"># this is the domain that traefik will match on to do host-based HTTP</span>
+    <span class="c1"># routing. Set it to a domain you control and add a star domain to route</span>
+    <span class="c1"># traffic. (EG *.marathon.localhost)</span>
+    <span class="c1">#</span>
+    <span class="c1"># For those migrating from haproxy, this variable serves the same purpose</span>
+    <span class="c1"># and format as `haproxy_domain`.</span>
+    <span class="l l-Scalar l-Scalar-Plain">traefik_marathon_domain</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">marathon.localhost</span>
+  <span class="l l-Scalar l-Scalar-Plain">roles</span><span class="p p-Indicator">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">traefik</span>
+</pre></div>
+</div>
+<p>Run this playbook with <tt class="docutils literal"><span class="pre">ansible-playbook</span> <span class="pre">-i</span> <span class="pre">plugins/inventory/terraform.py</span> <span class="pre">-e</span>
+<span class="pre">&#64;security.yml</span> <span class="pre">/path/to/your/playbook.yml</span></tt>. It will take a while for everything
+to come up as fresh machines will have to download quite a few dependencies.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/playbook.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

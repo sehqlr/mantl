@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Kafka &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Kubernetes" href="kubernetes.html" />
+    <link rel="prev" title="Haproxy" href="haproxy.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="kubernetes.html" title="Kubernetes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="haproxy.html" title="Haproxy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="kafka">
+<h1>Kafka<a class="headerlink" href="#kafka" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.1.</span></p>
+</div>
+<p>This role installs the <a class="reference external" href="https://github.com/mesos/kafka">Kafka Mesos Framework</a>
+and starts Kafka brokers.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>After a successful initial run (from your customized <tt class="docutils literal"><span class="pre">sample.yml</span></tt>), you can
+install Kafka with <tt class="docutils literal"><span class="pre">ansible-playbook</span> <span class="pre">-e</span> <span class="pre">&#64;security.yml</span> <span class="pre">addons/kafka.yml</span></tt>. It
+can take several minutes for all components to deploy and become healthy.</p>
+</div>
+<div class="section" id="accessing-the-kafka-mesos-rest-api">
+<h2>Accessing the Kafka Mesos REST API<a class="headerlink" href="#accessing-the-kafka-mesos-rest-api" title="Permalink to this headline">¶</a></h2>
+<p>After the Kafka framework and the Kafka brokers have been successfully started
+and initialized, it should be possible to access the Kafka Mesos REST API at
+<tt class="docutils literal"><span class="pre">/kafka</span></tt> on control nodes.</p>
+</div>
+<div class="section" id="default-configuration">
+<h2>Default Configuration<a class="headerlink" href="#default-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The default configuration of the Kafka brokers will require at least 3 worker
+nodes that each have at least 4 CPUs and 4 GBs of memory available to Mesos.</p>
+<p>Depending on your planned environment, you may wish to customize the sizing of
+your Kafka cluster using the variables documented below.</p>
+</div>
+<div class="section" id="customizing-your-installation">
+<h2>Customizing your Installation<a class="headerlink" href="#customizing-your-installation" title="Permalink to this headline">¶</a></h2>
+<p>The size of your Kafka cluster is controlled by the variables documented below.</p>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="kafka_scheduler_name">
+<tt class="descname">kafka_scheduler_name</tt><a class="headerlink" href="#kafka_scheduler_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The application ID of the Kafka scheduler in Marathon.</p>
+<p>default: &#8220;mantl/kafka&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_service_name">
+<tt class="descname">kafka_service_name</tt><a class="headerlink" href="#kafka_service_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the service that is registered in Consul when the framework is
+deployed. This needs to match what would be derived via mesos-consul. For
+example, when <tt class="docutils literal"><span class="pre">kafka_scheduler_name</span></tt> is set to <tt class="docutils literal"><span class="pre">mantl/kafka</span></tt>, the service
+name should be <tt class="docutils literal"><span class="pre">kafka-mantl</span></tt>.</p>
+<p>default: &#8220;kafka-mantl&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_scheduler_cpu">
+<tt class="descname">kafka_scheduler_cpu</tt><a class="headerlink" href="#kafka_scheduler_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of CPU to allocate to the Kafka scheduler instance (MB).</p>
+<p>default: 0.2</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_scheduler_mem">
+<tt class="descname">kafka_scheduler_mem</tt><a class="headerlink" href="#kafka_scheduler_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of memory to allocate to the Kafka scheduler instance (MB).</p>
+<p>default: 512</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_count">
+<tt class="descname">kafka_broker_count</tt><a class="headerlink" href="#kafka_broker_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of Kafka brokers to start.</p>
+<p>default: 3</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_cpu">
+<tt class="descname">kafka_broker_cpu</tt><a class="headerlink" href="#kafka_broker_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of CPU to allocate to each Kafka broker.</p>
+<p>default: 4</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_mem">
+<tt class="descname">kafka_broker_mem</tt><a class="headerlink" href="#kafka_broker_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of memory to allocate to each Kafka broker (MB).</p>
+<p>default: 4096</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_heap">
+<tt class="descname">kafka_broker_heap</tt><a class="headerlink" href="#kafka_broker_heap" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of heap to allocate to each Kafka broker (MB).</p>
+<p>default: 4096</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_port">
+<tt class="descname">kafka_broker_port</tt><a class="headerlink" href="#kafka_broker_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>The port to bind to for the Kafka brokers.</p>
+<p>default: 9092</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_options">
+<tt class="descname">kafka_broker_options</tt><a class="headerlink" href="#kafka_broker_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Kafka options to pass to the brokers.</p>
+<p>default: &#8220;log.flush.interval.ms=10000,num.recovery.threads.per.data.dir=1,delete.topic.enable=true,log.index.size.max.bytes=10485760,num.partitions=8,num.network.threads=3,socket.request.max.bytes=104857600,log.segment.bytes=536870912,log.cleaner.enable=true,zookeeper.connection.timeout.ms=1000000,log.flush.scheduler.interval.ms=2000,log.retention.hours=72,log.flush.interval.messages=20000,log.dirs=/mantl/a/dfs-data/kafka-logs\,/mantl/b/dfs-data/kafka-logs\,/mantl/c/dfs-data/kafka-logs\,/mantl/d/dfs-data/kafka-logs\,/mantl/e/dfs-data/kafka-logs\,/mantl/f/dfs-data/kafka-logs,log.index.interval.bytes=4096,socket.receive.buffer.bytes=1048576,min.insync.replicas=2,replica.lag.max.messages=10000000,replica.lag.time.max.ms=1000000,log.retention.check.interval.ms=3600000,message.max.bytes=20480,default.replication.factor=2,zookeeper.session.timeout.ms=500000,num.io.threads=8,auto.create.topics.enable=false,socket.send.buffer.bytes=1048576&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="kafka_broker_jvm_options">
+<tt class="descname">kafka_broker_jvm_options</tt><a class="headerlink" href="#kafka_broker_jvm_options" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Kafka JVM options to pass to the brokers.</p>
+<p>default: &#8220;-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false&#8221;</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/kafka.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

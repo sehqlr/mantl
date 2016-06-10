@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>the security-setup script &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Security" href="index.html" />
+    <link rel="next" title="Upgrading" href="../upgrading/index.html" />
+    <link rel="prev" title="Security" href="security.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../upgrading/index.html" title="Upgrading"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="security.html" title="Security"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Security</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="the-security-setup-script">
+<h1>the security-setup script<a class="headerlink" href="#the-security-setup-script" title="Permalink to this headline">¶</a></h1>
+<p>The <tt class="docutils literal"><span class="pre">security-setup</span></tt> script is located in the root of the project. It will set
+up authentication and authorization for you, as described in the <a class="reference internal" href="../components/index.html"><em>component
+documentation</em></a>. When components are updated, you can run
+it again, as many times as you want. It will only set the variables it needs to.</p>
+<p>After you&#8217;ve set up security with the script, you can include it in your
+playbook runs by specifying the <tt class="docutils literal"><span class="pre">-e</span></tt> or <tt class="docutils literal"><span class="pre">--extra-vars</span></tt> option, like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ansible-playbook --extra-vars=@security.yml your_playbook.yml
+</pre></div>
+</div>
+<div class="section" id="certificates">
+<h2>Certificates<a class="headerlink" href="#certificates" title="Permalink to this headline">¶</a></h2>
+<p>If not present, <tt class="docutils literal"><span class="pre">security-setup</span></tt> will create a root CA to generate
+certificates from. If you want to use your own CA, add the key in
+<tt class="docutils literal"><span class="pre">ssl/private/cakey.pem</span></tt> and the cert in <tt class="docutils literal"><span class="pre">ssl/cacert.pem</span></tt>.</p>
+<p>If you have your own (self)signed certificates, you can put them in
+<tt class="docutils literal"><span class="pre">ssl/private/your.key.pem</span></tt> and <tt class="docutils literal"><span class="pre">ssl/certs/your.cert.pem</span></tt>. Just override the
+locations the script generates (for example the consul key and cert would be
+<tt class="docutils literal"><span class="pre">ssl/private/consul.key.pem</span></tt> and <tt class="docutils literal"><span class="pre">ssl/certs/consul.cert.pem</span></tt>, respectively)
+and they&#8217;ll be used instead of the generated files, and not overridden.</p>
+<p>In the event that you need to regenerate a certificate, rename or delete the
+appropriate CSR and certificate from the <tt class="docutils literal"><span class="pre">certs</span></tt> folder and the private
+component in <tt class="docutils literal"><span class="pre">private</span></tt> and re-run <tt class="docutils literal"><span class="pre">security-setup</span></tt>.</p>
+</div>
+<div class="section" id="boolean-options">
+<h2>Boolean Options<a class="headerlink" href="#boolean-options" title="Permalink to this headline">¶</a></h2>
+<p>Options like <tt class="docutils literal"><span class="pre">--mesos</span></tt> take a boolean argument. You can use the following
+values in these options:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Value</th>
+<th class="head">Interpreted as</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><cite>t</cite></td>
+<td>True</td>
+</tr>
+<tr class="row-odd"><td><cite>T</cite></td>
+<td>True</td>
+</tr>
+<tr class="row-even"><td><cite>1</cite></td>
+<td>True</td>
+</tr>
+<tr class="row-odd"><td><cite>True</cite></td>
+<td>True</td>
+</tr>
+<tr class="row-even"><td><cite>true</cite></td>
+<td>True</td>
+</tr>
+<tr class="row-odd"><td><cite>f</cite></td>
+<td>False</td>
+</tr>
+<tr class="row-even"><td><cite>F</cite></td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td><cite>0</cite></td>
+<td>False</td>
+</tr>
+<tr class="row-even"><td><cite>False</cite></td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td><cite>false</cite></td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<dl class="option">
+<dt id="cmdoption-security-setup-h">
+<span id="cmdoption-security-setup--help"></span><tt class="descname">-h</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--help</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup-h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the help message and exit</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--no-verify-certificates">
+<tt class="descname">--no-verify-certificates</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--no-verify-certificates" title="Permalink to this definition">¶</a></dt>
+<dd><p>By default <tt class="docutils literal"><span class="pre">security-setup</span></tt> will verify certificates when it runs, to make
+sure they&#8217;re still valid. However, do the way OpenSSL handles verification
+errors this check may be somewhat brittle. If this gives you trouble, disable
+it by specifying this flag.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--change-admin-password">
+<tt class="descname">--change-admin-password</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--change-admin-password" title="Permalink to this definition">¶</a></dt>
+<dd><p><tt class="docutils literal"><span class="pre">security-setup</span></tt> will normally ask for an admin password only if it doesn&#8217;t
+already have one. Setting this option will cause <tt class="docutils literal"><span class="pre">security-setup</span></tt> to
+re-prompt for the admin password.</p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--enable">
+<tt class="descname">--enable</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--enable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable (or disable, if False) all security. This overrides all other options.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--use-private-docker-registry">
+<tt class="descname">--use-private-docker-registry</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--use-private-docker-registry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide (or skip, if False) credentials for a private Docker registry.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">False</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--consul">
+<tt class="descname">--consul</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--consul" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Consul security. This overrides all other Consul options.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos">
+<tt class="descname">--mesos</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Mesos security. This overrides all other Mesos options.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--marathon">
+<tt class="descname">--marathon</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--marathon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Marathon security. This overrides all other Marathon options.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--iptables">
+<tt class="descname">--iptables</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--iptables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use iptables rules. This overrides all other options related to iptables.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-country">
+<tt class="descname">--cert-country</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-country" title="Permalink to this definition">¶</a></dt>
+<dd><p>Country to be used for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">US</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-state">
+<tt class="descname">--cert-state</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-state" title="Permalink to this definition">¶</a></dt>
+<dd><p>State/region to be used for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">New</span> <span class="pre">York</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-locality">
+<tt class="descname">--cert-locality</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-locality" title="Permalink to this definition">¶</a></dt>
+<dd><p>Locality to be used for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">Anytown</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-organization">
+<tt class="descname">--cert-organization</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-organization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organization to be used for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">Example</span> <span class="pre">Company</span> <span class="pre">Inc</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-unit">
+<tt class="descname">--cert-unit</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-unit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Operational unit to be used for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">Operations</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--cert-email">
+<tt class="descname">--cert-email</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--cert-email" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contact email to use for certificates</p>
+<p>default: <tt class="docutils literal"><span class="pre">operations&#64;example.com</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--consul-location">
+<tt class="descname">--consul-location</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--consul-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Location Consul will be accessed at. This will be used as the common name in
+the Consul certificate.</p>
+<p>default: <tt class="docutils literal"><span class="pre">consul.example.com</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--nginx-location">
+<tt class="descname">--nginx-location</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--nginx-location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Location nginx will be accessed at. This will be used as the common name in
+the nginx certificate.</p>
+<p>default: <tt class="docutils literal"><span class="pre">nginx.example.com</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--consul-auth">
+<tt class="descname">--consul-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--consul-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Consul authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--consul-ssl">
+<tt class="descname">--consul-ssl</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--consul-ssl" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Consul SSL</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--consul-acl">
+<tt class="descname">--consul-acl</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--consul-acl" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Consul ACLs</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos-ssl">
+<tt class="descname">--mesos-ssl</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos-ssl" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mesos SSL</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos-auth">
+<tt class="descname">--mesos-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mesos authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos-framework-auth">
+<tt class="descname">--mesos-framework-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos-framework-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mesos framework authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos-follower-auth">
+<tt class="descname">--mesos-follower-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos-follower-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mesos follower authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mesos-iptables">
+<tt class="descname">--mesos-iptables</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mesos-iptables" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mesos iptables rules to restrict access</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--marathon-ssl">
+<tt class="descname">--marathon-ssl</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--marathon-ssl" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Marathon SSL</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--marathon-auth">
+<tt class="descname">--marathon-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--marathon-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Marathon authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--marathon-iptables">
+<tt class="descname">--marathon-iptables</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--marathon-iptables" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Marathon iptables rules to restrict access</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="option">
+<dt id="cmdoption-security-setup--mantl-api-auth">
+<tt class="descname">--mantl-api-auth</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-security-setup--mantl-api-auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>enable Mantl API Mesos credentials</p>
+<p>default: <tt class="docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Security</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="security.html">Security</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">the security-setup script</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/security/security_setup.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

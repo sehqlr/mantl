@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SoftLayer &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Getting Started" href="index.html" />
+    <link rel="next" title="CenturyLinkCloud" href="clc.html" />
+    <link rel="prev" title="VMware vSphere" href="vsphere.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="clc.html" title="CenturyLinkCloud"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vsphere.html" title="VMware vSphere"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Getting Started</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="softlayer">
+<h1>SoftLayer<a class="headerlink" href="#softlayer" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.3.3.</span></p>
+</div>
+<p>As of Mantl 0.3.3 you can bring up SoftLayer
+servers using Terraform. Mantl uses Terraform to
+provision hosts.</p>
+<p>As of now, the released version of Terraform doesn&#8217;t have SoftLayer support,
+but one can build a <cite>custom binary with SoftLayer provisioning.&lt;https://github.com/hashicorp/terraform/pull/2554&gt;</cite>.</p>
+<div class="section" id="configuring-terraform-for-softlayer">
+<h2>Configuring Terraform for SoftLayer<a class="headerlink" href="#configuring-terraform-for-softlayer" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/softlayer.sample.tf</span></tt>. It looks like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="nx">provider</span> <span class="s2">&quot;softlayer&quot;</span> <span class="p">{</span>
+<span class="p">}</span>
+
+<span class="nx">module</span> <span class="s2">&quot;softlayer-keypair&quot;</span> <span class="p">{</span>
+  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&quot;./terraform/softlayer/keypair&quot;</span>
+  <span class="nx">public_key_filename</span> <span class="o">=</span> <span class="s2">&quot;~/.ssh/id_rsa.pub&quot;</span>
+<span class="p">}</span>
+
+<span class="nx">module</span> <span class="s2">&quot;softlayer-hosts&quot;</span> <span class="p">{</span>
+  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&quot;./terraform/softlayer/hosts&quot;</span>
+  <span class="nx">ssh_key</span> <span class="o">=</span> <span class="s2">&quot;${module.softlayer-keypair.keypair_id}&quot;</span>
+
+  <span class="nx">region_name</span> <span class="o">=</span> <span class="s2">&quot;ams01&quot;</span>
+  <span class="nx">domain</span> <span class="o">=</span> <span class="s2">&quot;example.com&quot;</span>
+  <span class="nx">control_count</span> <span class="o">=</span> <span class="mi">3</span>
+  <span class="nx">worker_count</span> <span class="o">=</span> <span class="mi">4</span>
+  <span class="nx">edge_count</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Copy that file in it&#8217;s entirety to the root of the project to start
+customization. In the next sections, we&#8217;ll describe the settings that you need
+to configure.</p>
+<div class="section" id="username-and-api-key">
+<h3>Username and API Key<a class="headerlink" href="#username-and-api-key" title="Permalink to this headline">¶</a></h3>
+<p>You need to generate an API key for your SoftLayer account. This can be done
+in the control panel at <cite>http://softlayer.com&lt;http://softlayer.com&gt;</cite>.</p>
+<p>This token, along with your username, must be put in your softlayer.tf file.
+Alternatively, if you don&#8217;t want to put credentials in the terraform file,
+you can set environment variables:</p>
+<dl class="envvar">
+<dt id="envvar-SOFTLAYER_USERNAME">
+<tt class="descname">SOFTLAYER_USERNAME</tt><a class="headerlink" href="#envvar-SOFTLAYER_USERNAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SoftLayer username</p>
+</dd></dl>
+
+<dl class="envvar">
+<dt id="envvar-SOFTLAYER_API_KEY">
+<tt class="descname">SOFTLAYER_API_KEY</tt><a class="headerlink" href="#envvar-SOFTLAYER_API_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SoftLayer API key</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="provisioning">
+<h2>Provisioning<a class="headerlink" href="#provisioning" title="Permalink to this headline">¶</a></h2>
+<p>Once you&#8217;re all set up with the provider, customize your modules (for
+<tt class="docutils literal"><span class="pre">control_count</span></tt> and <tt class="docutils literal"><span class="pre">worker_count</span></tt>), run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare
+Terraform to provision your cluster, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be
+created, and <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> to provision the cluster. Afterwards, you can
+use the instructions in <a class="reference internal" href="index.html"><em>getting started</em></a> to install
+Mantl on your new cluster.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/softlayer.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

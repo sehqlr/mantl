@@ -1,0 +1,31 @@
+
+Vault
+*****
+
+New in version 0.3.0.
+
+Vault "secures, stores, and tightly controls access to tokens,
+passwords, certificates, API keys, and other secrets in modern
+computing." It is currently included as a technology demo in Mantl.
+
+
+Variables
+=========
+
+vault_default_port
+
+   Port for Vault to listen on
+
+   default: "8200"
+
+vault_command_options
+
+   Extra options to pass to Vault at startup
+
+   default: "-insecure"
+
+vault_init_json
+
+   Initial JSON configuration for Vault
+
+   default: "{"secret_shares": 4, "secret_threshold": 3}"

@@ -1,0 +1,358 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mesos &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Traefik" href="traefik.html" />
+    <link rel="prev" title="Marathon" href="marathon.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="traefik.html" title="Traefik"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="marathon.html" title="Marathon"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mesos">
+<h1>Mesos<a class="headerlink" href="#mesos" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.1.</span></p>
+</div>
+<p><a class="reference external" href="https://mesos.apache.org/">Mesos</a> is the distributed system kernel that
+manages resources across multiple nodes. When combined with <a class="reference internal" href="marathon.html"><em>Marathon</em></a>, you
+can basically think of it as a distributed init system.</p>
+<div class="section" id="modes">
+<h2>Modes<a class="headerlink" href="#modes" title="Permalink to this headline">¶</a></h2>
+<p>Mesos can be run in one of two &#8220;modes&#8221;:</p>
+<blockquote>
+<div><ul class="simple">
+<li>A server mode (called &#8220;master&#8221; or &#8220;leader&#8221;)</li>
+<li>A client mode (called &#8220;follower&#8221; or &#8220;agent&#8221;. The term &#8220;slave&#8221; is used but deprecated.)</li>
+</ul>
+</div></blockquote>
+<p>This project prefers the &#8220;leader/follower nomenclature&#8221;. In addition to the
+&#8220;official&#8221; modes described below, <a class="reference internal" href="#mesos_mode" title="mesos_mode"><tt class="xref py py-data docutils literal"><span class="pre">mesos_mode</span></tt></a> supports running both modes
+on a single machine for testing or development scenarios.</p>
+<div class="section" id="leader">
+<h3>Leader<a class="headerlink" href="#leader" title="Permalink to this headline">¶</a></h3>
+<p>Leaders will communicate with each other via <a class="reference internal" href="zookeeper.html"><em>ZooKeeper</em></a> to coordinate
+which leader controls the cluster. Because of this, you can run as many leader
+nodes as you like, but you should consider keeping an odd number in the cluster
+to make attaining a quorum easier. A single leader node will also work fine, but
+will not be highly available.</p>
+</div>
+<div class="section" id="follower">
+<h3>Follower<a class="headerlink" href="#follower" title="Permalink to this headline">¶</a></h3>
+<p>Follower nodes need to know where the leaders are, and there can be any number
+of them. You should keep the follower machines free of &#8220;heavier&#8221; services
+running outside Mesos, as this will cause inaccurate resource availability
+counts in the cluster.</p>
+</div>
+</div>
+<div class="section" id="upgrading">
+<h2>Upgrading<a class="headerlink" href="#upgrading" title="Permalink to this headline">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.0.</span></p>
+</div>
+<p>If you are running Mantl 0.5.1, you&#8217;ll need to run the
+<tt class="docutils literal"><span class="pre">playbooks/upgrade-mesos-marathon.yml</span></tt> playbook before reprovisioning your
+cluster to 1.0. The packaging format changed in the 1.0 release, this will
+ensure a smooth upgrade.</p>
+<p>Upgrades from releases prior to Mantl 0.5.1 have not been tested.</p>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>You can use these variables to customize your Mesos installation.</p>
+<dl class="data">
+<dt id="mesos_mode">
+<tt class="descname">mesos_mode</tt><a class="headerlink" href="#mesos_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to <tt class="docutils literal"><span class="pre">leader</span></tt> for leader mode, and <tt class="docutils literal"><span class="pre">follower</span></tt> for follower mode. Set to
+<tt class="docutils literal"><span class="pre">mixed</span></tt> to run both leader and follower on the same machine (useful for
+development or testing.)</p>
+<p>default: <tt class="docutils literal"><span class="pre">follower</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_log_dir">
+<tt class="descname">mesos_log_dir</tt><a class="headerlink" href="#mesos_log_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">/var/log/mesos</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_work_dir">
+<tt class="descname">mesos_work_dir</tt><a class="headerlink" href="#mesos_work_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">/var/run/mesos</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_leader_port">
+<tt class="descname">mesos_leader_port</tt><a class="headerlink" href="#mesos_leader_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">5050</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_follower_port">
+<tt class="descname">mesos_follower_port</tt><a class="headerlink" href="#mesos_follower_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">5051</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_leader_cmd">
+<tt class="descname">mesos_leader_cmd</tt><a class="headerlink" href="#mesos_leader_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">mesos-master</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_follower_cmd">
+<tt class="descname">mesos_follower_cmd</tt><a class="headerlink" href="#mesos_follower_cmd" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">mesos-slave</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_attributes">
+<tt class="descname">mesos_attributes</tt><a class="headerlink" href="#mesos_attributes" title="Permalink to this definition">¶</a></dt>
+<dt>
+<tt class="descname">Set attributes for mesos agents.</tt></dt>
+<dt>
+<tt class="descname">Provide these as a list to set multiple attributes. Format:</tt></dt>
+<dt>
+<tt class="descname">`` - &quot;key:value&quot;</tt></dt>
+<dt>
+<tt class="descname">- &quot;key:value&quot;``</tt></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">node_id:{{</span> <span class="pre">inventory_hostname</span> <span class="pre">}}</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_resources">
+<tt class="descname">mesos_resources</tt><a class="headerlink" href="#mesos_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set resources for mesos agents. (useful for setting available ports that
+applications can be bound to). Provide these as a list to set multiple resources. Format:
+<a href="#id2"><span class="problematic" id="id3">``</span></a>- name(role):value</p>
+<blockquote>
+<div><ul class="simple">
+<li>name(role):value...``</li>
+</ul>
+</div></blockquote>
+<p>default: <tt class="docutils literal"><span class="pre">ports(*):[4000-5000,</span> <span class="pre">7000-8000,</span> <span class="pre">9000-10000,</span> <span class="pre">25000-26000,</span> <span class="pre">31000-32000]</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_cluster">
+<tt class="descname">mesos_cluster</tt><a class="headerlink" href="#mesos_cluster" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">mantl</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_zk_hosts">
+<tt class="descname">mesos_zk_hosts</tt><a class="headerlink" href="#mesos_zk_hosts" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ZooKeeper connection string in the the <tt class="docutils literal"><span class="pre">host:mesos_zk_port</span></tt> format, generated from the hosts in <tt class="docutils literal"><span class="pre">zookeeper_server_group</span></tt>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_zk_dns">
+<tt class="descname">mesos_zk_dns</tt><a class="headerlink" href="#mesos_zk_dns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Consul DNS entries for ZooKeeper hosts.</p>
+<p>default: <tt class="docutils literal"><span class="pre">zookeeper.service.consul</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_zk_port">
+<tt class="descname">mesos_zk_port</tt><a class="headerlink" href="#mesos_zk_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">2181</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_zk_chroot">
+<tt class="descname">mesos_zk_chroot</tt><a class="headerlink" href="#mesos_zk_chroot" title="Permalink to this definition">¶</a></dt>
+<dd><p>ZooKeeper znode to use as a base for mesos data.</p>
+<p>default: <tt class="docutils literal"><span class="pre">mesos</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_credentials">
+<tt class="descname">mesos_credentials</tt><a class="headerlink" href="#mesos_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of credentials to add for authentication. These should be in the form
+<tt class="docutils literal"><span class="pre">{</span> <span class="pre">principal:</span> <span class="pre">&quot;...&quot;,</span> <span class="pre">secret:</span> <span class="pre">&quot;...&quot;</span> <span class="pre">}</span></tt>.</p>
+<p>default: <tt class="docutils literal"><span class="pre">[]</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_authenticate_frameworks">
+<tt class="descname">mesos_authenticate_frameworks</tt><a class="headerlink" href="#mesos_authenticate_frameworks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Mesos authentication for frameworks. You should set
+<a class="reference internal" href="#mesos_credentials" title="mesos_credentials"><tt class="xref py py-data docutils literal"><span class="pre">mesos_credentials</span></tt></a> for credentials if this is set.</p>
+<p>default: set automatically if framework credentials are present</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_authenticate_followers">
+<tt class="descname">mesos_authenticate_followers</tt><a class="headerlink" href="#mesos_authenticate_followers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable Mesos authentication from followers. If set, each follower will need
+<a class="reference internal" href="#mesos_follower_secret" title="mesos_follower_secret"><tt class="xref py py-data docutils literal"><span class="pre">mesos_follower_secret</span></tt></a> set in their host variables.</p>
+<p>default: set automatically if follower credentials are present</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_follower_principal">
+<tt class="descname">mesos_follower_principal</tt><a class="headerlink" href="#mesos_follower_principal" title="Permalink to this definition">¶</a></dt>
+<dd><p>The principal to use for follower authentication</p>
+<p>default: <tt class="docutils literal"><span class="pre">follower</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_follower_secret">
+<tt class="descname">mesos_follower_secret</tt><a class="headerlink" href="#mesos_follower_secret" title="Permalink to this definition">¶</a></dt>
+<dd><p>The secret to use for follower authentication</p>
+<p>default: not set. Set this to enable follower authentication.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="mesos_logging_level">
+<tt class="descname">mesos_logging_level</tt><a class="headerlink" href="#mesos_logging_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>The log level for Mesos. This is set for all components.</p>
+<p>Default: <tt class="docutils literal"><span class="pre">WARNING</span></tt></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/mesos.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

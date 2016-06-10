@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Haproxy &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Kafka" href="kafka.html" />
+    <link rel="prev" title="GlusterFS" href="glusterfs.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="kafka.html" title="Kafka"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="glusterfs.html" title="GlusterFS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="haproxy">
+<h1>Haproxy<a class="headerlink" href="#haproxy" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.2.</span></p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Haproxy is deprecated as of Mantl 0.5. Please migrate to <a class="reference internal" href="traefik.html"><em>Traefik</em></a>
+at your earliest convenience.</p>
+</div>
+<p><a class="reference external" href="https://github.com/CiscoCloud/haproxy-consul">Haproxy</a> connects to
+<a class="reference internal" href="consul.html"><em>Consul</em></a>, and proxies all registered services. At the current time all
+containers are mapped to port 80. Future versions will allow each container to
+control the haproxy port and url mapping.</p>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>Depends on <tt class="docutils literal"><span class="pre">haproxy_domain</span></tt>, as we use host_acl on the hostname in the
+request.</p>
+<dl class="data">
+<dt id="haproxy_image">
+<tt class="descname">haproxy_image</tt><a class="headerlink" href="#haproxy_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">asteris/haproxy-consul</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="haproxy_image_tag">
+<tt class="descname">haproxy_image_tag</tt><a class="headerlink" href="#haproxy_image_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">latest</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="haproxy_domain">
+<tt class="descname">haproxy_domain</tt><a class="headerlink" href="#haproxy_domain" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">example.com</span></tt></p>
+<p>The domain that haproxy will use to match url requests. For example if this
+is set to example.com, apps <tt class="docutils literal"><span class="pre">myapp</span></tt> and <tt class="docutils literal"><span class="pre">hello-world</span></tt> will be mapped to
+<tt class="docutils literal"><span class="pre">myapp.example.com</span></tt>, <tt class="docutils literal"><span class="pre">hello-world.example.com</span></tt>.</p>
+<p>For this to work, you need to have a wildcard dns entry for
+<tt class="docutils literal"><span class="pre">*.example.com</span></tt>, so when your browser goes to <tt class="docutils literal"><span class="pre">http://myapp.example.com</span></tt>,
+your DNS settings forward that traffic to one of the nodes running haproxy.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="making-haproxy-work-with-the-dns-setup-from-terraform">
+<h2>Making haproxy work with the DNS setup from Terraform<a class="headerlink" href="#making-haproxy-work-with-the-dns-setup-from-terraform" title="Permalink to this headline">¶</a></h2>
+<p>The Terraform files in Mantl are set up to create DNS
+records in the form of <tt class="docutils literal"><span class="pre">*.[short-name]-lb.[domain]</span></tt>, e.g. <cite>*.mi-lb.example.com</cite>.
+In order to set up haproxy to work with these DNS records, set haproxy_domain
+to <tt class="docutils literal"><span class="pre">[short-name]-lb.[domain]</span></tt>, replacing <tt class="docutils literal"><span class="pre">[short-name]</span></tt> and <tt class="docutils literal"><span class="pre">[domain]</span></tt>
+with your values.
+Then, you can access <tt class="docutils literal"><span class="pre">myapp</span></tt> at <tt class="docutils literal"><span class="pre">myapp.[short-name]-lb.[domain]</span></tt>
+(<tt class="docutils literal"><span class="pre">myapp.mi-lb.example.com</span></tt>)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/haproxy.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

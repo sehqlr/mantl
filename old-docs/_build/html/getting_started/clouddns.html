@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GCP Cloud DNS &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="DNS" href="dns.html" />
+    <link rel="next" title="Route53" href="route53.html" />
+    <link rel="prev" title="DNSimple" href="dnsimple.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="route53.html" title="Route53"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dnsimple.html" title="DNSimple"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Getting Started</a> &raquo;</li>
+          <li><a href="dockerfile.html" >Using the Dockerfile</a> &raquo;</li>
+          <li><a href="gce.html" >Google Compute Engine</a> &raquo;</li>
+          <li><a href="dns.html" accesskey="U">DNS</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="gcp-cloud-dns">
+<h1>GCP Cloud DNS<a class="headerlink" href="#gcp-cloud-dns" title="Permalink to this headline">¶</a></h1>
+<p>Terraform can use <tt class="docutils literal"><span class="pre">google_dns_record_set</span></tt> resources to provide DNS records for
+your cluster.</p>
+<p>In addition to the <a class="reference internal" href="dns.html"><em>normal DNS variables</em></a>, you will need to specify
+the <tt class="docutils literal"><span class="pre">managed_zone</span></tt> parameter. You can find your Managed Zone name in the
+GCP Netowrking Console.</p>
+<img alt="GCP Managed Zone Name example" src="../_images/gcp_dns.png" />
+<p>If you haven&#8217;t set up a managed zone for
+the domain you&#8217;re using, you can do that with Terraform as well, just add this
+extra snippet in your .tf file:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="nx">resource</span> <span class="s2">&quot;google_dns_managed_zone&quot;</span> <span class="s2">&quot;managed-zone&quot;</span> <span class="p">{</span>
+  <span class="nx">name</span> <span class="o">=</span> <span class="s2">&quot;my-managed-zone&quot;</span>
+  <span class="nx">dns_name</span> <span class="o">=</span> <span class="s2">&quot;example.com.&quot;</span>
+  <span class="nx">description</span> <span class="s2">&quot;Managed zone for example.com.&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In your <tt class="docutils literal"><span class="pre">gce.tf</span></tt>, you will want to enable the cloud-dns module:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="nx">module</span> <span class="s2">&quot;cloud-dns&quot;</span> <span class="p">{</span>
+  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&quot;./terraform/gce/dns&quot;</span>
+  <span class="nx">control_count</span> <span class="o">=</span> <span class="s2">&quot;${var.control_count}&quot;</span>
+  <span class="nx">control_ips</span> <span class="o">=</span> <span class="s2">&quot;${module.control-nodes.control_ips}&quot;</span>
+  <span class="nx">domain</span> <span class="o">=</span> <span class="s2">&quot;mydomain.com&quot;</span>
+  <span class="nx">edge_count</span> <span class="o">=</span> <span class="s2">&quot;${var.edge_count}&quot;</span>
+  <span class="nx">edge_ips</span> <span class="o">=</span> <span class="s2">&quot;${module.edge-nodes.edge_ips}&quot;</span>
+  <span class="nx">lb_ip</span> <span class="o">=</span> <span class="s2">&quot;${module.network-lb.public_ip}&quot;</span>
+  <span class="nx">managed_zone</span> <span class="o">=</span> <span class="s2">&quot;my-cloud-dns-zone&quot;</span>
+  <span class="nx">short_name</span> <span class="o">=</span> <span class="s2">&quot;${var.short_name}&quot;</span>
+  <span class="nx">subdomain</span> <span class="o">=</span> <span class="s2">&quot;service&quot;</span>
+  <span class="nx">worker_count</span> <span class="o">=</span> <span class="s2">&quot;${var.worker_count}&quot;</span>
+  <span class="nx">worker_ips</span> <span class="o">=</span> <span class="s2">&quot;${module.worker-nodes.worker_ips}&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/clouddns.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

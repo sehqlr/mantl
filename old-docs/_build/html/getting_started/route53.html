@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Route53 &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="DNS" href="dns.html" />
+    <link rel="next" title="Amazon Web Services" href="aws.html" />
+    <link rel="prev" title="GCP Cloud DNS" href="clouddns.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="aws.html" title="Amazon Web Services"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="clouddns.html" title="GCP Cloud DNS"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Getting Started</a> &raquo;</li>
+          <li><a href="dockerfile.html" >Using the Dockerfile</a> &raquo;</li>
+          <li><a href="gce.html" >Google Compute Engine</a> &raquo;</li>
+          <li><a href="dns.html" accesskey="U">DNS</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="route53">
+<h1>Route53<a class="headerlink" href="#route53" title="Permalink to this headline">¶</a></h1>
+<p>Terraform can use <tt class="docutils literal"><span class="pre">aws_route53_record</span></tt> resources to provide DNS records for
+your cluster.</p>
+<p>In addition to the <a class="reference internal" href="dns.html"><em>normal DNS variables</em></a>, you will need to specify
+the <tt class="docutils literal"><span class="pre">hosted_zone_id</span></tt> parameter. You can find your own hosted zone ID in your
+AWS Route 53 console.</p>
+<img alt="AWS Route53 Hosted Zone Id example" src="../_images/aws_route53_zone_id.png" />
+<p>Route53 uses your normal <a class="reference internal" href="aws.html"><em>Amazon Web Services</em></a> provider credentials.</p>
+<p>In your <tt class="docutils literal"><span class="pre">aws.tf</span></tt>, you will want to uncomment the aws-elb module:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span># Example setup for an AWS Route53
+module &quot;route53&quot; {
+  source = &quot;./terraform/aws/route53/dns&quot;
+  control_count = &quot;${var.control_count}&quot;
+  control_ips = &quot;${module.control-nodes.ec2_ips}&quot;
+  domain = &quot;my-domain.com&quot;
+  edge_count = &quot;${var.edge_count}&quot;
+  edge_ips = &quot;${module.edge-nodes.ec2_ips}&quot;
+  elb_fqdn = &quot;${module.aws-elb.fqdn}&quot;
+  hosted_zone_id = &quot;XXXXXXXXXXXX&quot;
+  short_name = &quot;${var.short_name}&quot;
+  subdomain = &quot;.dev&quot;
+  traefik_elb_fqdn = &quot;${module.traefik-elb.fqdn}&quot;
+  traefik_zone_id = &quot;${module.traefik-elb.zone_id}&quot;
+  worker_count = &quot;${var.worker_count}&quot;
+  worker_ips = &quot;${module.worker-nodes.ec2_ips}&quot;
+}
+</pre></div>
+</div>
+<p>This module assumes you set-up an ELB, if not you will need to comment out the ELB section
+and references in the module.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/route53.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

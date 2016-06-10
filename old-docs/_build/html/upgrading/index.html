@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Upgrading &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="next" title="Packer" href="../packer.html" />
+    <link rel="prev" title="the security-setup script" href="../security/security_setup.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../packer.html" title="Packer"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../security/security_setup.html" title="the security-setup script"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="upgrading">
+<h1>Upgrading<a class="headerlink" href="#upgrading" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Beginning with Mantl 1.0,  our goal is to support a straightforward upgrade path
+from a cluster running a previous release.</p>
+<p>However, upgrade support should be considered alpha at this time; it has not
+been extensively tested on production clusters. Please use with caution and
+report any issues you have with the process.</p>
+</div>
+<div class="section" id="upgrading-os-packages">
+<h2>Upgrading OS packages<a class="headerlink" href="#upgrading-os-packages" title="Permalink to this headline">¶</a></h2>
+<p>We provide two playbooks for upgrading OS-level system packages on a cluster:
+<tt class="docutils literal"><span class="pre">playbooks/upgrade-packages.yml</span></tt> and <tt class="docutils literal"><span class="pre">playbooks/rolling-upgrade-packages.yml</span></tt>.
+The first playbook upgrades all nodes on your cluster in parallel, and the
+second upgrades each node serially. You want the use the rolling upgrade on a
+cluster that is already running consul; otherwise, you will likely lose quorum
+and destabilize your cluster.</p>
+</div>
+<div class="section" id="upgrading-from-1-0-3-to-1-1">
+<h2>Upgrading from 1.0.3 to 1.1<a class="headerlink" href="#upgrading-from-1-0-3-to-1-1" title="Permalink to this headline">¶</a></h2>
+<p>If you have a running 1.0.3 cluster, you need to perform the following steps:</p>
+<div class="section" id="update-security-yml">
+<h3>Update security.yml<a class="headerlink" href="#update-security-yml" title="Permalink to this headline">¶</a></h3>
+<p>Mantl 1.0 requires some additional settings in the <tt class="docutils literal"><span class="pre">security.yml</span></tt> file that
+you generated when you built your cluster. To auto-generate the necessary
+settings, you simply need to re-run <tt class="docutils literal"><span class="pre">security-setup</span></tt>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>./security-setup
+</pre></div>
+</div>
+<p>Of course, if you customized your security settings (manually or using the CLI
+arguments), you should be careful to re-run <tt class="docutils literal"><span class="pre">security-setup</span></tt> the same way.</p>
+<p>The main change was a switch to using a single certificate for internal nginx
+proxies.</p>
+</div>
+<div class="section" id="core-component-rolling-upgrade">
+<h3>Core Component Rolling Upgrade<a class="headerlink" href="#core-component-rolling-upgrade" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml playbooks/upgrade-1.0.3.yml
+</pre></div>
+</div>
+<p>This playbook performs a rolling update of several core components including
+consul, nginx-consul based services, and mantl-dns. Due to compatibility issues,
+we also disable the collectd Docker plugin.</p>
+</div>
+<div class="section" id="upgrade-to-mantl-1-1">
+<h3>Upgrade to Mantl 1.1<a class="headerlink" href="#upgrade-to-mantl-1-1" title="Permalink to this headline">¶</a></h3>
+<p>At this point, you can now upgrade the rest of the components to 1.1 with the
+standard provisioning playbook:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml mantl.yml
+</pre></div>
+</div>
+<p>If you already have a pre-1.1 mantl.yml, you will want to incorporate the 1.1
+changes (see <tt class="docutils literal"><span class="pre">sample.yml</span></tt>). Also, if you customized variables with
+<tt class="docutils literal"><span class="pre">-e</span></tt> when building your 1.0.3 cluster, you will likely want to include the
+same variables when running the 1.1 version of the playbook. For example:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml -e <span class="nv">consul_dc</span><span class="o">=</span>mydc mantl.yml
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="upgrading-from-0-5-1-to-1-0">
+<h2>Upgrading from 0.5.1 to 1.0<a class="headerlink" href="#upgrading-from-0-5-1-to-1-0" title="Permalink to this headline">¶</a></h2>
+<p>If you have a running 0.5.1 cluster, you need to perform the following steps:</p>
+<div class="section" id="id1">
+<h3>Update security.yml<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Mantl 1.0 requires some additional settings in the <tt class="docutils literal"><span class="pre">security.yml</span></tt> file that
+you generated when you built your cluster. To auto-generate the necessary
+settings, you simply need to re-run <tt class="docutils literal"><span class="pre">security-setup</span></tt>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>./security-setup
+</pre></div>
+</div>
+<p>Of course, if you customized your security settings (manually or using the CLI
+arguments), you should be careful to re-run <tt class="docutils literal"><span class="pre">security-setup</span></tt> the same way.</p>
+<p>For your reference, the following settings have been added:</p>
+<ul class="simple">
+<li>consul_acl_marathon_token</li>
+<li>consul_acl_secure_token</li>
+<li>consul_dns_domain</li>
+</ul>
+</div>
+<div class="section" id="a-note-on-consul-dns-domain">
+<h3>A note on consul_dns_domain<a class="headerlink" href="#a-note-on-consul-dns-domain" title="Permalink to this headline">¶</a></h3>
+<p>Prior to 1.0, the ansible <tt class="docutils literal"><span class="pre">consul_dns_domain</span></tt> variable was defined in a number
+of different playbooks. It is now included in <tt class="docutils literal"><span class="pre">security.yml</span></tt> and can be
+customized from a single location. This simplifies the configuration and reduces
+the likelihood of mistakes. If you are working with a customized
+<tt class="docutils literal"><span class="pre">mantl.yml</span></tt> file, you should remove all <tt class="docutils literal"><span class="pre">consul_dns_domain</span></tt> definitions
+from it and ensure <tt class="docutils literal"><span class="pre">consul_dns_domain</span></tt> is set as desired in your
+<tt class="docutils literal"><span class="pre">security.yml</span></tt>.</p>
+</div>
+<div class="section" id="upgrade-distributive-consul-mesos-and-marathon">
+<h3>Upgrade Distributive, Consul, Mesos, and Marathon<a class="headerlink" href="#upgrade-distributive-consul-mesos-and-marathon" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml playbooks/upgrade-0.5.1.yml
+</pre></div>
+</div>
+<p>This playbook performs a Distributive upgrade and includes a couple of other
+playbooks that perform a rolling upgrade of Consul, Mesos, and Marathon.</p>
+</div>
+<div class="section" id="upgrade-to-mantl-1-0">
+<h3>Upgrade to Mantl 1.0<a class="headerlink" href="#upgrade-to-mantl-1-0" title="Permalink to this headline">¶</a></h3>
+<p>At this point, you can now upgrade the rest of the components to 1.0 with the
+standard provisioning playbook:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml mantl.yml
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Upgrading</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrading-os-packages">Upgrading OS packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrading-from-1-0-3-to-1-1">Upgrading from 1.0.3 to 1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrading-from-0-5-1-to-1-0">Upgrading from 0.5.1 to 1.0</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/upgrading/index.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

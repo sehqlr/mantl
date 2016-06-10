@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Google Compute Engine &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Using the Dockerfile" href="dockerfile.html" />
+    <link rel="next" title="DNS" href="dns.html" />
+    <link rel="prev" title="OpenStack" href="openstack.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dns.html" title="DNS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="openstack.html" title="OpenStack"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Getting Started</a> &raquo;</li>
+          <li><a href="dockerfile.html" accesskey="U">Using the Dockerfile</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="google-compute-engine">
+<h1>Google Compute Engine<a class="headerlink" href="#google-compute-engine" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.0: </span>multi-zone support and terraform modularization</p>
+</div>
+<p>As of Mantl 0.3 you can bring up Google Compute Engine environments using
+Terraform. Mantl uses Terraform to provision hosts. You
+can <a class="reference external" href="https://www.terraform.io/downloads.html">download Terraform from terraform.io</a>.</p>
+<div class="section" id="configuring-google-compute-engine-for-terraform">
+<h2>Configuring Google Compute Engine for Terraform<a class="headerlink" href="#configuring-google-compute-engine-for-terraform" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/gce.sample.tf</span></tt>. The beginning of it looks like this:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>variable &quot;control_count&quot; { default = 3 }
+variable &quot;datacenter&quot; {default = &quot;gce&quot;}
+variable &quot;edge_count&quot; { default = 3}
+variable &quot;image&quot; {default = &quot;centos-7-v20150526&quot;}
+variable &quot;long_name&quot; {default = &quot;mantl&quot;}
+variable &quot;short_name&quot; {default = &quot;mi&quot;}
+variable &quot;ssh_key&quot; {default = &quot;~/.ssh/id_rsa.pub&quot;}
+variable &quot;ssh_user&quot; {default = &quot;centos&quot;}
+variable &quot;worker_count&quot; {default = 1}
+variable &quot;zones&quot; {
+  default = &quot;us-central1-a,us-central1-b&quot;
+}
+
+provider &quot;google&quot; {
+  account_file = &quot;&quot;
+  credentials = &quot;${file(&quot;account.json&quot;)}&quot;
+  project = &quot;mantl-0000&quot;
+  region = &quot;us-central1&quot;
+}
+</pre></div>
+</div>
+<p>Copy that file in it&#8217;s entirety to the root of the project as <tt class="docutils literal"><span class="pre">gce.tf</span></tt> to start
+customization. In the next sections, we&#8217;ll explain how to obtain these settings.</p>
+<div class="section" id="basic-settings">
+<h3>Basic Settings<a class="headerlink" href="#basic-settings" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">project</span></tt>, <tt class="docutils literal"><span class="pre">region</span></tt> and <tt class="docutils literal"><span class="pre">zones</span></tt> are unique values for each project in Google Compute
+Engine. <tt class="docutils literal"><span class="pre">project</span></tt> is available from the project overview page (use the Project
+ID not the Project Name.) You can select which region and zones you want to use from any of the GCE zones (see
+the image below) If you&#8217;re in the United States, (region) <cite>us-central1</cite> and (zones) <cite>us-central1-a,us-central1-b,us-central1-c</cite> are a good choice.
+If you&#8217;re in Europe, <cite>europe-west1</cite> and <cite>europe-west1-b,europe-west1-c</cite> might be your best bets. If you haven&#8217;t
+previously activated Compute Engine for your project, this is a good time to do
+it.</p>
+<img alt="The GCE zones available at Product and Services menu -&gt; Compute Engine -&gt; Zones in their interface." src="../_images/gce_zones.png" />
+<p>If you don&#8217;t want to commit these values in a file, you can source them from the
+environment instead:</p>
+<dl class="envvar">
+<dt id="envvar-GOOGLE_PROJECT">
+<tt class="descname">GOOGLE_PROJECT</tt><a class="headerlink" href="#envvar-GOOGLE_PROJECT" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ID of a project to apply resources to.</p>
+</dd></dl>
+
+<dl class="envvar">
+<dt id="envvar-GOOGLE_REGION">
+<tt class="descname">GOOGLE_REGION</tt><a class="headerlink" href="#envvar-GOOGLE_REGION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The region to operate under.</p>
+</dd></dl>
+
+<p><tt class="docutils literal"><span class="pre">image</span></tt> is the GCE image to use for your cluster instances. You can find image names under Images in the Compute Engine section
+of the GCP console.</p>
+<p><tt class="docutils literal"><span class="pre">ssh_username</span></tt> is the default user name for SSH access to your cluster hosts.
+This value will be dependent on the <tt class="docutils literal"><span class="pre">image</span></tt> that you use. Common values
+are <tt class="docutils literal"><span class="pre">centos</span></tt> or <tt class="docutils literal"><span class="pre">rhel</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">datacenter</span></tt> is a name to identify your datacenter, this is important if you have more than one datacenter.</p>
+<p><tt class="docutils literal"><span class="pre">short_name</span></tt> is appended to the name tag and dns (if used) of each of the nodes to help better identify them.</p>
+<p><tt class="docutils literal"><span class="pre">control_count</span></tt>, <tt class="docutils literal"><span class="pre">edge_count</span></tt> and <tt class="docutils literal"><span class="pre">worker_count</span></tt> are the number of GCE instances that will get deployed for each node type.</p>
+<p><tt class="docutils literal"><span class="pre">control_type</span></tt>, <tt class="docutils literal"><span class="pre">edge_type</span></tt> and <tt class="docutils literal"><span class="pre">worker_type</span></tt> are used to specify the <a class="reference external" href="https://cloud.google.com/compute/docs/machine-types/">GCE machine type</a> .</p>
+</div>
+<div class="section" id="account-json">
+<h3><tt class="docutils literal"><span class="pre">account.json</span></tt><a class="headerlink" href="#account-json" title="Permalink to this headline">¶</a></h3>
+<p>Terraform also needs service account to be able to create and manage
+resources in your project. You can create one by going to the &#8220;Credentials&#8221;
+screen under &#8220;API Manager&#8221; in the GCP Product and Services menu.
+Service accounts are created under New credentials -&gt; Service account key.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You&#8217;ll need to be an account owner to create this file - if you&#8217;re
+not, ask your account owner to do this step for you.</p>
+</div>
+<img alt="The GCE UI for creating a service account." src="../_images/gce_service_account.png" />
+<p>You will either need to create an new service account or use an exisiting one. For this example we
+created one called <tt class="docutils literal"><span class="pre">terraform</span></tt>.</p>
+<img alt="The GCE dialogue for creating a service account. &quot;Service account&quot; is selected." src="../_images/gce_service_account_dialogue.png" />
+<p>Once you&#8217;ve created your account, your browser will download a JSON file
+containing the credentials. Point <tt class="docutils literal"><span class="pre">credentials</span></tt> to the path you decide to
+store that file in. If you&#8217;re running Terraform from a Google Compute instance
+with an associated service account, you may leave the <tt class="docutils literal"><span class="pre">credentials</span></tt> parameter
+blank.</p>
+</div>
+</div>
+<div class="section" id="provisioning">
+<h2>Provisioning<a class="headerlink" href="#provisioning" title="Permalink to this headline">¶</a></h2>
+<p>Once you&#8217;re all set up with the provider, customize your modules (for
+<tt class="docutils literal"><span class="pre">control_count</span></tt>, <tt class="docutils literal"><span class="pre">edge_count</span></tt> and <tt class="docutils literal"><span class="pre">worker_count</span></tt>). Make sure your local
+ssh-agent is running and your ssh key has been added, this is requrired
+by the Terraform provisioner. Run <tt class="docutils literal"><span class="pre">ssh-add</span> <span class="pre">~/.ssh/id_rsa</span></tt> to add your ssh key.
+Run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare Terraform to provision your cluster, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be
+created, and <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> to provision the cluster. Afterwards, you can
+use the instructions in <a class="reference internal" href="index.html"><em>getting started</em></a> to install
+Mantl on your new cluster.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you get the below when running terraform plan or apply,
+you will need to add : <tt class="docutils literal"><span class="pre">account_file</span> <span class="pre">=</span> <span class="pre">&quot;&quot;</span></tt> to the provider section of your gce.tf file.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>provider.google.account_file
+Enter a value:
+</pre></div>
+</div>
+<p class="last">This is a know bug in older versions of terraform.</p>
+</div>
+<div class="section" id="terraform-state">
+<h3>Terraform State<a class="headerlink" href="#terraform-state" title="Permalink to this headline">¶</a></h3>
+<p>Terraform stores the <a class="reference external" href="https://www.terraform.io/docs/state/index.html">state</a> of your
+infrastructure in a file called &#8220;terraform.tfstate&#8221;. This file can be stored locally
+or in a <a class="reference external" href="https://www.terraform.io/docs/state/index.html">remote</a> location such as <a class="reference external" href="https://github.com/hashicorp/terraform/blob/master/state/remote/remote.go#L38">consul</a>.
+If you use the <tt class="docutils literal"><span class="pre">gce.sample.tf</span></tt> that is provided, by default the state of all the modules
+are stored in local terraform.tfstate file at the root of this project.</p>
+<p>Instead of storing the state for all the modules in one file, you might deploy the modules
+independently and have different terraform.tfstate for each module (either locally or remote).
+This can help with blue/green deployments, or making sure you don&#8217;t accidently override more static
+parts of the infrastructure such as the network.</p>
+<p>In the gce.sample.tf we have included examples of how you would reference a remote state file for network variables.</p>
+<p>To create <tt class="docutils literal"><span class="pre">terraform.tfstate</span></tt> locally for the network module, you would simply run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt>, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> and
+<tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> in the <tt class="docutils literal"><span class="pre">terraform/gce/network/</span></tt> directory.
+Then in your <tt class="docutils literal"><span class="pre">gce.tf</span></tt> file you would want to comment out:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>#module &quot;gce-network&quot; {
+#   source = &quot;./terraform/gce/network&quot;
+#   network_ipv4 = &quot;10.0.0.0/16&quot;
+#}
+</pre></div>
+</div>
+<p>and uncomment:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>resource &quot;terraform_remote_state&quot; &quot;gce-network&quot; {
+  backend = &quot;_local&quot;
+  config {
+    path = &quot;./terraform/gce/network/terraform.tfstate&quot;
+  }
+}
+</pre></div>
+</div>
+<p>and change all the network_name variables for the nodes to be:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>network_name = &quot;${terraform_remote_state.gce-network.output.network_name}&quot;
+</pre></div>
+</div>
+<p>Ideally you would store the state remotely, but configuring that is outside the scope of
+this document. <a class="reference external" href="http://blog.mattiasgees.be/2015/07/29/terraform-remote-state/">This</a> is a
+good explanation on how to configure and use remote state.</p>
+</div>
+</div>
+<div class="section" id="configuring-dns-with-google-cloud-dns">
+<h2>Configuring DNS with Google Cloud DNS<a class="headerlink" href="#configuring-dns-with-google-cloud-dns" title="Permalink to this headline">¶</a></h2>
+<p>You can set up your DNS records with Terraform:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dns.html">DNS</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/gce.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

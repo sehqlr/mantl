@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Collectd &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Consul" href="consul.html" />
+    <link rel="prev" title="Chronos" href="chronos.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="consul.html" title="Consul"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="chronos.html" title="Chronos"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="collectd">
+<h1>Collectd<a class="headerlink" href="#collectd" title="Permalink to this headline">¶</a></h1>
+<p>Collectd role for deploying Collectd.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>As of 1.1.0, Collectd is distributed as an addon for Mantl. After a successful
+initial run from your customized <tt class="docutils literal"><span class="pre">sample.yml</span></tt>, install it with
+<tt class="docutils literal"><span class="pre">ansible-playbook</span> <span class="pre">-e</span> <span class="pre">&#64;security.yml</span> <span class="pre">addons/collectd.yml</span></tt>.</p>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>This role has the following global settings:</p>
+<dl class="data">
+<dt id="Hostname">
+<tt class="descname">Hostname</tt><a class="headerlink" href="#Hostname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hostname to append to metrics</p>
+<p>Default: <tt class="docutils literal"><span class="pre">{{</span> <span class="pre">inventory_hostname</span> <span class="pre">}}</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="Interval">
+<tt class="descname">Interval</tt><a class="headerlink" href="#Interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Global interval for sampling and sending metrics</p>
+<p>Default: <tt class="docutils literal"><span class="pre">10</span> <span class="pre">seconds</span></tt></p>
+</dd></dl>
+
+<p>This role enables the following Collectd plugins and settings:</p>
+<dl class="data">
+<dt id="cpu">
+<tt class="descname">cpu</tt><a class="headerlink" href="#cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: amount of time spent by the CPU in various states</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="disk">
+<tt class="descname">disk</tt><a class="headerlink" href="#disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: performance statistics for block devices and partitions</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="df">
+<tt class="descname">df</tt><a class="headerlink" href="#df" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description : file system usage information
+Default: exclude all system and obsure file system types</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="interface">
+<tt class="descname">interface</tt><a class="headerlink" href="#interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: network interface throughput, packets/s, errors</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="load">
+<tt class="descname">load</tt><a class="headerlink" href="#load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: system load</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="memory">
+<tt class="descname">memory</tt><a class="headerlink" href="#memory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: physical memory utilization</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="processes">
+<tt class="descname">processes</tt><a class="headerlink" href="#processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: number of processes grouped by state</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="swap">
+<tt class="descname">swap</tt><a class="headerlink" href="#swap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: amount of memory currently written to swap disk</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="uptime">
+<tt class="descname">uptime</tt><a class="headerlink" href="#uptime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: system uptime</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="users">
+<tt class="descname">users</tt><a class="headerlink" href="#users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: read
+Description: counts the number of users currently logged into the system</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="network">
+<tt class="descname">network</tt><a class="headerlink" href="#network" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: write
+Description: send metrics to collectd compatible receiver
+Default: <tt class="docutils literal"><span class="pre">Server</span> <span class="pre">&quot;localhost&quot;</span> <span class="pre">&quot;25826&quot;</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="syslog">
+<tt class="descname">syslog</tt><a class="headerlink" href="#syslog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Type: write
+Description: write collectd logs to syslog
+Default: <tt class="docutils literal"><span class="pre">LogLevel</span> <span class="pre">&quot;err&quot;</span></tt></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/collectd.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

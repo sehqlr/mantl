@@ -1,0 +1,405 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Chronos &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Collectd" href="collectd.html" />
+    <link rel="prev" title="Calico" href="calico.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="collectd.html" title="Collectd"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="calico.html" title="Calico"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="chronos">
+<h1>Chronos<a class="headerlink" href="#chronos" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.1.</span></p>
+</div>
+<p><a class="reference external" href="http://mesos.github.io/chronos/">Chronos</a> is a distributed and
+fault-tolerant scheduler that runs on top of Apache Mesos that can be used for
+job orchestration. You can think of it as distributed cron service. It supports
+custom Mesos executors as well as the default command executor. By default,
+Chronos executes sh (on most systems bash) scripts.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>As of 1.1, Chronos is distributed as an addon for Mantl. After a successful
+initial build (from your customized <tt class="docutils literal"><span class="pre">sample.yml</span></tt>), you can install it by
+running:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook addons/chronos.yml
+</pre></div>
+</div>
+<p>It can take a few minutes before Chronos becomes available and healthy.</p>
+</div>
+<div class="section" id="accessing-the-chronos-user-interface">
+<h2>Accessing the Chronos User Interface<a class="headerlink" href="#accessing-the-chronos-user-interface" title="Permalink to this headline">¶</a></h2>
+<p>After Chronos has been successfully installed and initialized, it should be
+possible to access the user interface directly from Mantl UI.</p>
+</div>
+<div class="section" id="default-configuration">
+<h2>Default Configuration<a class="headerlink" href="#default-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The default configuration of the Chronos addon will require at 1 worker node
+with at least 1 CPU and 1 GB of memory available.</p>
+</div>
+<div class="section" id="customizing-your-installation">
+<h2>Customizing your Installation<a class="headerlink" href="#customizing-your-installation" title="Permalink to this headline">¶</a></h2>
+<p>There are a number of configuration options available for Chronos (each
+documented in the Variables section below).</p>
+<p>As an example, let&#8217;s say you wanted to run 3 Chronos instances for
+high-availability purposes and you wanted each to have more CPU and memory
+allocated. To do this, create a new yaml file (<tt class="docutils literal"><span class="pre">chronos.yml</span></tt>, for example)
+that looks something like this:</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="nn">---</span>
+<span class="l l-Scalar l-Scalar-Plain">chronos_instances</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="l l-Scalar l-Scalar-Plain">chronos_cpus</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+<span class="l l-Scalar l-Scalar-Plain">chronos_mem</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">2048.0</span>
+</pre></div>
+</div>
+<p>When you install the Chronos addon, you can tell ansible to use this yaml file
+to configure your installation:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @chronos.yml addons/chronos.yml
+</pre></div>
+</div>
+</div>
+<div class="section" id="uninstalling-the-chronos-addon">
+<h2>Uninstalling the Chronos addon<a class="headerlink" href="#uninstalling-the-chronos-addon" title="Permalink to this headline">¶</a></h2>
+<p>Uninstalling the Chronos addon can be done with a single API call. For example:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">creds</span><span class="o">=</span><span class="s1">&#39;admin:password&#39;</span>
+<span class="nb">export</span> <span class="nv">url</span><span class="o">=</span>https://mantl-control-01
+
+<span class="c1"># uninstall chronos framework</span>
+curl -sku <span class="nv">$creds</span> -XDELETE -d <span class="s2">&quot;{\&quot;name\&quot;: \&quot;chronos\&quot;}&quot;</span> <span class="nv">$url</span>/api/1/install
+</pre></div>
+</div>
+<p>You will need to adjust the <tt class="docutils literal"><span class="pre">creds</span></tt> and <tt class="docutils literal"><span class="pre">url</span></tt> variables with values that are
+applicable to your cluster.</p>
+</div>
+<div class="section" id="upgrading-from-1-0">
+<h2>Upgrading from 1.0<a class="headerlink" href="#upgrading-from-1-0" title="Permalink to this headline">¶</a></h2>
+<p>If you are upgrading from a Mantl 1.0 cluster that is already running Chronos,
+there is actually little reason to switch over to the addon version that runs in
+Marathon. Feel free to continue using your existing Chronos installation.
+However, if for some reason you want to switch, you can run the following steps
+to disable the existing Chronos install.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Please note that you will need to recreate any tasks you already have
+scheduled in Chronos. They will not be automatically migrated.</p>
+</div>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible <span class="s1">&#39;role=control&#39;</span> -s -m shell -a <span class="s1">&#39;consul-cli service-deregister chronos&#39;</span>
+ansible <span class="s1">&#39;role=control&#39;</span> -s -m shell -a <span class="s1">&#39;rm /etc/consul/chronos.json&#39;</span>
+ansible <span class="s1">&#39;role=control&#39;</span> -s -m service -a <span class="s1">&#39;name=chronos enabled=no state=stopped&#39;</span>
+</pre></div>
+</div>
+<p>The new method of installing Chronos requires a version of mantl-api later than
+0.1.7. You can upgrade mantl-api manually, or run a sample playbook from a more
+recent version of Mantl (after 1.0.4) to get it. After upgrading mantl-api, you
+can install the addon in the usual way:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook addons/chronos.yml
+</pre></div>
+</div>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="chronos_cassandra_port">
+<tt class="descname">chronos_cassandra_port</tt><a class="headerlink" href="#chronos_cassandra_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>Port for Cassandra.</p>
+<p>default: 9042</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_cassandra_ttl">
+<tt class="descname">chronos_cassandra_ttl</tt><a class="headerlink" href="#chronos_cassandra_ttl" title="Permalink to this definition">¶</a></dt>
+<dd><p>TTL for records written to Cassandra.</p>
+<p>default: 31536000</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_cpus">
+<tt class="descname">chronos_cpus</tt><a class="headerlink" href="#chronos_cpus" title="Permalink to this definition">¶</a></dt>
+<dd><p>CPU shares to allocate to each Chronos instance.</p>
+<p>default: 1.0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_instances">
+<tt class="descname">chronos_instances</tt><a class="headerlink" href="#chronos_instances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of Chronos instances to run.</p>
+<p>default: 1</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_decline_offer_duration">
+<tt class="descname">chronos_decline_offer_duration</tt><a class="headerlink" href="#chronos_decline_offer_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>The duration (milliseconds) for which to decline offers by default.</p>
+<p>default: 5000</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_disable_after_failures">
+<tt class="descname">chronos_disable_after_failures</tt><a class="headerlink" href="#chronos_disable_after_failures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disables a job after this many failures have occurred.</p>
+<p>default: 0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_failover_timeout">
+<tt class="descname">chronos_failover_timeout</tt><a class="headerlink" href="#chronos_failover_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>The failover timeout in seconds for Mesos.</p>
+<p>default: 604800</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_failure_retry">
+<tt class="descname">chronos_failure_retry</tt><a class="headerlink" href="#chronos_failure_retry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of ms between retries.</p>
+<p>default: 60000</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_framework_name">
+<tt class="descname">chronos_framework_name</tt><a class="headerlink" href="#chronos_framework_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The framework name.</p>
+<p>default: &#8220;chronos&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_graphite_reporting_interval">
+<tt class="descname">chronos_graphite_reporting_interval</tt><a class="headerlink" href="#chronos_graphite_reporting_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graphite reporting interval (seconds).</p>
+<p>default: 60</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_hostname">
+<tt class="descname">chronos_hostname</tt><a class="headerlink" href="#chronos_hostname" title="Permalink to this definition">¶</a></dt>
+<dd><p>The advertised hostname stored in ZooKeeper so another standby host can
+redirect to this elected leader.</p>
+<p>default: &#8220;$HOST&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_id">
+<tt class="descname">chronos_id</tt><a class="headerlink" href="#chronos_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique identifier for the app consisting of a series of names separated by
+slashes.</p>
+<p>default: &#8220;/chronos&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_mem">
+<tt class="descname">chronos_mem</tt><a class="headerlink" href="#chronos_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Memory (MB) to allocate to each Chronos instance.</p>
+<p>default: 1024.0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_mesos_task_cpu">
+<tt class="descname">chronos_mesos_task_cpu</tt><a class="headerlink" href="#chronos_mesos_task_cpu" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of CPUs to request from Mesos for each task.</p>
+<p>default: 0.1</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_mesos_task_disk">
+<tt class="descname">chronos_mesos_task_disk</tt><a class="headerlink" href="#chronos_mesos_task_disk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Amount of disk capacity to request from Mesos for each task (MB).</p>
+<p>default: 256.0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_mesos_task_mem">
+<tt class="descname">chronos_mesos_task_mem</tt><a class="headerlink" href="#chronos_mesos_task_mem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Amount of memory to request from Mesos for each task (MB).</p>
+<p>default: 128.0</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_min_revive_offers_interval">
+<tt class="descname">chronos_min_revive_offers_interval</tt><a class="headerlink" href="#chronos_min_revive_offers_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not ask for all offers (also already seen ones) more often than this
+interval (ms).</p>
+<p>default: 5000</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_reconciliation_interval">
+<tt class="descname">chronos_reconciliation_interval</tt><a class="headerlink" href="#chronos_reconciliation_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconciliation interval in seconds.</p>
+<p>default: 600</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_revive_offers_for_new_jobs">
+<tt class="descname">chronos_revive_offers_for_new_jobs</tt><a class="headerlink" href="#chronos_revive_offers_for_new_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether to call reviveOffers for new or changed jobs.</p>
+<p>default: false</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_schedule_horizon">
+<tt class="descname">chronos_schedule_horizon</tt><a class="headerlink" href="#chronos_schedule_horizon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The look-ahead time for scheduling tasks in seconds.</p>
+<p>default: 60</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_task_epsilon">
+<tt class="descname">chronos_task_epsilon</tt><a class="headerlink" href="#chronos_task_epsilon" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default epsilon value for tasks, in seconds.</p>
+<p>default: 60</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="chronos_zk_timeout">
+<tt class="descname">chronos_zk_timeout</tt><a class="headerlink" href="#chronos_zk_timeout" title="Permalink to this definition">¶</a></dt>
+<dd><p>The timeout for ZooKeeper in milliseconds.</p>
+<p>default: 10000</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/chronos.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

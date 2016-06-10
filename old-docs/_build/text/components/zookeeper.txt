@@ -1,0 +1,82 @@
+
+ZooKeeper
+*********
+
+New in version 0.1.
+
+ZooKeeper is used for coordination among Mesos and Marathon nodes.
+Rather than storing things in this service yourself, you should prefer
+*Consul*.
+
+
+Variables
+=========
+
+You can use these variables to customize your ZooKepeer installation.
+
+zk_id
+
+   The value of "zk_id" in the ZooKeeper configuration file. If not
+   provided it will be set by the playbook.
+
+zookeeper_service
+
+   default: zookeeper
+
+zookeeper_env
+
+   default: "dev"
+
+zookeeper_ensemble
+
+   default: "mantl"
+
+zookeeper_container_name
+
+   The name that will be used for the container at runtime. Generated
+   automatically from "zookeeper_service", "zookeeper_env",
+   "zookeeper_ensemble", and "zk_id" if not set.
+
+zookeeper_data_volume
+
+   The name of the data volume to store state in. Generated
+   automatically from "zookeeper_env", "zookeeper_ensemble", and
+   "zk_id" if not set.
+
+zookeeper_docker_image
+
+   default: "asteris/zookeeper"
+
+zookeeper_docker_tag
+
+   default: "latest"
+
+zookeeper_docker_ports
+
+   Port arguments, which will be passed directly to docker. Opens TCP
+   2181, 2888, and 3888 by default.
+
+   default: ""-p 2181:2181 -p 2888:2888 -p 3888:3888""
+
+zookeeper_docker_env
+
+   default: ""/etc/default/{{ zookeeper_service }}""
+
+zookeeper_log_threshold
+
+   Log level for ZooKeeper
+
+   default: "WARN"
+
+zookeeper_log_retain_count
+
+   Number of zookeeper transaction logs and snapshots to keep.
+
+   default: "3"
+
+zookeeper_log_purge_interval
+
+   Interval in hours that zookeeper waits to purge transacton logs and
+   snapshots.
+
+   default: "12"

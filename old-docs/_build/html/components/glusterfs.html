@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GlusterFS &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Haproxy" href="haproxy.html" />
+    <link rel="prev" title="etcd" href="etcd.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="haproxy.html" title="Haproxy"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="etcd.html" title="etcd"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="glusterfs">
+<h1>GlusterFS<a class="headerlink" href="#glusterfs" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.4.</span></p>
+</div>
+<p><a class="reference external" href="http://www.gluster.org/">Gluster</a> implements a distributed filesystem. It is
+used for container volume management and syncing around the cluster.</p>
+<p>Current Version: 3.7.6</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>As of 0.5.1, GlusterFS is distributed as an addon for Mantl. After a successful
+initial run (from your customized <tt class="docutils literal"><span class="pre">sample.yml</span></tt>), install it with
+<tt class="docutils literal"><span class="pre">ansible-playbook</span> <span class="pre">-e</span> <span class="pre">&#64;security.yml</span> <span class="pre">addons/glusterfs.yml</span></tt>.</p>
+</div>
+<div class="section" id="restarting">
+<h2>Restarting<a class="headerlink" href="#restarting" title="Permalink to this headline">¶</a></h2>
+<p>There is a bug with the current implementation where the glusterd servers will
+not come up after a restart, but they&#8217;ll be fine to start once the restart is
+complete. To do this after a restart, run:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ansible -m command -a &#39;sudo systemctl start glusterd&#39; role=control
+</pre></div>
+</div>
+<p>You will also need to mount the disks after this operation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>ansible -m command -a &#39;sudo mount -a&#39; role=control
+</pre></div>
+</div>
+</div>
+<div class="section" id="use-with-docker">
+<h2>Use with Docker<a class="headerlink" href="#use-with-docker" title="Permalink to this headline">¶</a></h2>
+<p>Any Docker volume should be able to access data inside the
+<tt class="docutils literal"><span class="pre">/mnt/container-volumes</span></tt> partition. Because of SELinux, the volume label needs
+to be updated within the container. You can use the <tt class="docutils literal"><span class="pre">z</span></tt> flag to do this, as in
+this example which will open up a prompt in a container where the volume is
+mounted properly at <tt class="docutils literal"><span class="pre">/data</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>docker run --rm -it -v /mnt/container-volumes/test:/data:z gliderlabs/alpine /bin/sh
+</pre></div>
+</div>
+</div>
+<div class="section" id="cloud-configuration">
+<h2>Cloud Configuration<a class="headerlink" href="#cloud-configuration" title="Permalink to this headline">¶</a></h2>
+<p>On Google Compute Engine, Amazon Web Services, and OpenStack the
+Mantl Terraform modules will create an external volume.
+By default, this volume will be 100gb, but you can change this with the
+Terraform <tt class="docutils literal"><span class="pre">glusterfs_volume_size</span></tt> variable. The attached disk will be
+formatted as an XFS volume and mounted on the control nodes.</p>
+</div>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="glusterfs_version">
+<tt class="descname">glusterfs_version</tt><a class="headerlink" href="#glusterfs_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>The version of GlusterFS to download</p>
+<p>default: <tt class="docutils literal"><span class="pre">3.7.6</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_mode">
+<tt class="descname">glusterfs_mode</tt><a class="headerlink" href="#glusterfs_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mode that GlusterFS will be configured in. Valid values: &#8220;server&#8221; and
+&#8220;client&#8221;.</p>
+<p>default: <tt class="docutils literal"><span class="pre">client</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_replication">
+<tt class="descname">glusterfs_replication</tt><a class="headerlink" href="#glusterfs_replication" title="Permalink to this definition">¶</a></dt>
+<dd><p>The amount of replication to use for new volumes. Should be a factor of the
+number of nodes in the server group</p>
+<p>default: the number of control nodes present in the server group</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_server_group">
+<tt class="descname">glusterfs_server_group</tt><a class="headerlink" href="#glusterfs_server_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>A selector for a group to use as Gluster servers.</p>
+<p>default: <tt class="docutils literal"><span class="pre">role=control</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_brick_mount">
+<tt class="descname">glusterfs_brick_mount</tt><a class="headerlink" href="#glusterfs_brick_mount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Where the Gluster external disk will be mounted on supported cloud providers.</p>
+<p>default: <tt class="docutils literal"><span class="pre">/mnt/glusterfs</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_brick_device">
+<tt class="descname">glusterfs_brick_device</tt><a class="headerlink" href="#glusterfs_brick_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Automatically calculated depending on which cloud provider you are using.
+This should only be changed if you&#8217;re adding support for a new cloud provider
+or know very well where your volume is going to be located.</p>
+<p>default: automatically generated</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_volume_force">
+<tt class="descname">glusterfs_volume_force</tt><a class="headerlink" href="#glusterfs_volume_force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the glusterfs volume should be force-created (that is, created with
+storage on the root partition.) This is true when not using a cloud provider
+that supports external block storage.</p>
+<p>default: automatically generated &#8220;yes&#8221; or &#8220;no&#8221;</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="glusterfs_brick_location">
+<tt class="descname">glusterfs_brick_location</tt><a class="headerlink" href="#glusterfs_brick_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>The area in the filesystem to store bricks. It defaults to the value of
+<tt class="docutils literal"><span class="pre">glusterfs_brick_mount</span></tt> if an external disk is mounted, and
+<tt class="docutils literal"><span class="pre">/etc/glusterfs/data</span></tt> otherwise.</p>
+<p>default: automatically generated</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="gluserfs_volumes">
+<tt class="descname">gluserfs_volumes</tt><a class="headerlink" href="#gluserfs_volumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of names and mounts for volumes. The default looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>glusterfs_volumes:
+  - name: container-volumes
+    mount: /mnt/container-volumes
+</pre></div>
+</div>
+<p>If you need to add any more volumes, be sure to include the
+<tt class="docutils literal"><span class="pre">container-volumes</span></tt> mount in the list, or that volume will not work on new
+servers.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/glusterfs.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

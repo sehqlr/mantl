@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OpenStack &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Using the Dockerfile" href="dockerfile.html" />
+    <link rel="next" title="Google Compute Engine" href="gce.html" />
+    <link rel="prev" title="Using the Dockerfile" href="dockerfile.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gce.html" title="Google Compute Engine"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="dockerfile.html" title="Using the Dockerfile"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Getting Started</a> &raquo;</li>
+          <li><a href="dockerfile.html" accesskey="U">Using the Dockerfile</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="openstack">
+<h1>OpenStack<a class="headerlink" href="#openstack" title="Permalink to this headline">¶</a></h1>
+<p>Mantl uses Terraform to provision hosts in OpenStack. You
+can <a class="reference external" href="https://www.terraform.io/downloads.html">download Terraform from terraform.io</a>.</p>
+<p>This project provides a number of playbooks designed for doing host maintenance
+tasks on OpenStack hosts. You can find them in <tt class="docutils literal"><span class="pre">playbooks/</span></tt> in the main
+project directory.</p>
+<div class="section" id="configuring-openstack-authentication">
+<h2>Configuring OpenStack authentication<a class="headerlink" href="#configuring-openstack-authentication" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/openstack-modules.sample.tf</span></tt>. It looks
+like this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span>variable subnet_cidr { default = &quot;10.0.0.0/24&quot; }
+variable public_key { default = &quot;/home/you/.ssh/id_rsa.pub&quot; }
+variable ssh_user { default = &quot;cloud-user&quot; }
+
+variable name { default = &quot;mantl&quot; }        # resources will start with &quot;mantl-&quot;
+variable control_count { default = &quot;3&quot;}    # mesos masters, zk leaders, consul servers
+variable worker_count { default = &quot;5&quot;}     # worker nodes
+variable kubeworker_count { default = &quot;2&quot;} # kubeworker nodes
+variable edge_count { default = &quot;2&quot;}       # load balancer nodes
+
+# Run &#39;nova network-list&#39; to get these names and values
+# Floating ips are optional
+variable external_network_uuid { default = &quot;uuid-of-your-external-network&quot; }
+variable floating_ip_pool { default = &quot;name-of-your-floating-ip-pool&quot; }
+
+# Run &#39;nova image-list&#39; to get your image name
+variable image_name  { default = &quot;your-CentOS-7&quot; }
+
+# DNS servers passed to Openstack subnet
+variable dns_nameservers { default = &quot;&quot; } # comma separated list of ips, e.g. &quot;8.8.8.8,8.8.4.4&quot;
+
+#  Openstack flavors control the size of the instance, i.e. m1.xlarge.
+#  Run &#39;nova flavor-list&#39; to list the flavors in your environment
+#  Below are typical settings for mantl
+variable control_flavor_name { default = &quot;your-XLarge&quot; }
+variable worker_flavor_name { default = &quot;your-Large&quot; }
+variable kubeworker_flavor_name { default = &quot;your-Large&quot; }
+variable edge_flavor_name { default = &quot;your-Small&quot; }
+
+# Size of the volumes
+variable control_volume_size { default = &quot;50&quot; }
+variable worker_volume_size { default = &quot;100&quot; }
+variable edge_volume_size { default = &quot;20&quot; }
+
+module &quot;ssh-key&quot; {
+  source = &quot;./terraform/openstack/keypair_v2&quot;
+  public_key = &quot;${var.public_key}&quot;
+  keypair_name = &quot;mantl-key&quot;
+}
+
+#Create a network with an externally attached router
+module &quot;network&quot; {
+  source = &quot;./terraform/openstack/network&quot;
+  external_net_uuid = &quot;${var.external_network_uuid}&quot;
+  subnet_cidr = &quot;${var.subnet_cidr}&quot;
+  name = &quot;${var.name}&quot;
+  dns_nameservers = &quot;${var.dns_nameservers}&quot;
+}
+
+# Create floating IPs for each of the roles
+# These are not required if your network is exposed to the internet
+# or you don&#39;t want floating ips for the instances.
+module &quot;floating-ips-control&quot; {
+  source = &quot;./terraform/openstack/floating-ip&quot;
+  count = &quot;${var.control_count}&quot;
+  floating_pool = &quot;${var.floating_ip_pool}&quot;
+}
+
+module &quot;floating-ips-worker&quot; {
+  source = &quot;./terraform/openstack/floating-ip&quot;
+  count = &quot;${var.worker_count}&quot;
+  floating_pool = &quot;${var.floating_ip_pool}&quot;
+}
+
+module &quot;floating-ips-kubeworker&quot; {
+  source = &quot;./terraform/openstack/floating-ip&quot;
+  count = &quot;${var.kubeworker_count}&quot;
+  floating_pool = &quot;${var.floating_ip_pool}&quot;
+}
+
+module &quot;floating-ips-edge&quot; {
+  source = &quot;./terraform/openstack/floating-ip&quot;
+  count = &quot;${var.edge_count}&quot;
+  floating_pool = &quot;${var.floating_ip_pool}&quot;
+}
+
+# Create instances for each of the roles
+module &quot;instances-control&quot; {
+  source = &quot;./terraform/openstack/instance&quot;
+  name = &quot;${var.name}&quot;
+  count = &quot;${var.control_count}&quot;
+  role = &quot;control&quot;
+  volume_size = &quot;${var.control_volume_size}&quot;
+  network_uuid = &quot;${module.network.network_uuid}&quot;
+  floating_ips = &quot;${module.floating-ips-control.ip_list}&quot;
+  keypair_name = &quot;${module.ssh-key.keypair_name}&quot;
+  flavor_name = &quot;${var.control_flavor_name}&quot;
+  image_name = &quot;${var.image_name}&quot;
+  ssh_user = &quot;${var.ssh_user}&quot;
+}
+
+module &quot;instances-worker&quot; {
+  source = &quot;./terraform/openstack/instance&quot;
+  name = &quot;${var.name}&quot;
+  count = &quot;${var.worker_count}&quot;
+  volume_size = &quot;${var.worker_volume_size}&quot;
+  count_format = &quot;%03d&quot;
+  role = &quot;worker&quot;
+  network_uuid = &quot;${module.network.network_uuid}&quot;
+  floating_ips = &quot;${module.floating-ips-worker.ip_list}&quot;
+  keypair_name = &quot;${module.ssh-key.keypair_name}&quot;
+  flavor_name = &quot;${var.worker_flavor_name}&quot;
+  image_name = &quot;${var.image_name}&quot;
+  ssh_user = &quot;${var.ssh_user}&quot;
+}
+
+module &quot;instances-kubeworker&quot; {
+  source = &quot;./terraform/openstack/instance&quot;
+  name = &quot;${var.name}&quot;
+  count = &quot;${var.kubeworker_count}&quot;
+  volume_size = &quot;100&quot;
+  count_format = &quot;%03d&quot;
+  role = &quot;kubeworker&quot;
+  network_uuid = &quot;${module.network.network_uuid}&quot;
+  floating_ips = &quot;${module.floating-ips-kubeworker.ip_list}&quot;
+  keypair_name = &quot;${module.ssh-key.keypair_name}&quot;
+  flavor_name = &quot;${var.kubeworker_flavor_name}&quot;
+  image_name = &quot;${var.image_name}&quot;
+  ssh_user = &quot;${var.ssh_user}&quot;
+}
+
+module &quot;instances-edge&quot; {
+  source = &quot;./terraform/openstack/instance&quot;
+  name = &quot;${var.name}&quot;
+  count = &quot;${var.edge_count}&quot;
+  volume_size = &quot;${var.edge_volume_size}&quot;
+  count_format = &quot;%02d&quot;
+  role = &quot;edge&quot;
+  network_uuid = &quot;${module.network.network_uuid}&quot;
+  floating_ips = &quot;${module.floating-ips-edge.ip_list}&quot;
+  keypair_name = &quot;${module.ssh-key.keypair_name}&quot;
+  flavor_name = &quot;${var.edge_flavor_name}&quot;
+  image_name = &quot;${var.image_name}&quot;
+  ssh_user = &quot;${var.ssh_user}&quot;
+}
+</pre></div>
+</div>
+<p>Copy that file in it&#8217;s entirety to the root of the project to start
+customization. NOTE: All configuration entries needs to be completed.
+In the next sections, we&#8217;ll explain how to obtain these settings.</p>
+<p>You can also use this file as a base for further customization. For example, you
+can change the names of the modules to be specific to your environment. While we
+will explore the authentication variables in the next sections, you will need to
+provide the <tt class="docutils literal"><span class="pre">region</span></tt>, <tt class="docutils literal"><span class="pre">flavor_name</span></tt>, and other such variables yourself. You
+can get these variables from the OpenStack command line tools. For example:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">glance</span> <span class="pre">image-list</span></tt> for <tt class="docutils literal"><span class="pre">image_name</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">keystone</span> <span class="pre">tenant-list</span></tt> for <tt class="docutils literal"><span class="pre">tenant_id</span></tt> and <tt class="docutils literal"><span class="pre">tenant_name</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">nova</span> <span class="pre">flavor-list</span></tt> for <tt class="docutils literal"><span class="pre">control_flavor_name</span></tt> and <tt class="docutils literal"><span class="pre">worker_flavor_name</span></tt></li>
+</ul>
+<p>Or use the appropriate OpenStack commands such as <tt class="docutils literal"><span class="pre">openstack</span> <span class="pre">project</span> <span class="pre">list</span></tt> or
+the commands below.</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">openstack</span> <span class="pre">image</span> <span class="pre">list</span></tt> for <tt class="docutils literal"><span class="pre">image_name</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">openstack</span> <span class="pre">network</span> <span class="pre">list</span></tt> for <tt class="docutils literal"><span class="pre">net_id</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">openstack</span> <span class="pre">flavor</span> <span class="pre">list</span></tt> for <tt class="docutils literal"><span class="pre">control_flavor_name</span> <span class="pre">/</span> <span class="pre">worker_flavor_name</span></tt></li>
+</ul>
+<div class="section" id="generate-ssh-keys">
+<h3>Generate SSH keys<a class="headerlink" href="#generate-ssh-keys" title="Permalink to this headline">¶</a></h3>
+<p>If you do not have ssh keys already, generate a new pair for use with the
+project. You need to add the path to this key (public_key) to the openstack.tf
+file.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ssh-keygen -t rsa -f /path/to/project/sshkey -C <span class="s2">&quot;sshkey&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="getting-openstack-tenant-settings">
+<h3>Getting OpenStack tenant settings<a class="headerlink" href="#getting-openstack-tenant-settings" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">auth_url</span></tt>, <tt class="docutils literal"><span class="pre">tenant_name</span></tt>, and <tt class="docutils literal"><span class="pre">tenant_id</span></tt> are unique for each OpenStack
+datacenter. You can get these from the OpenStack web console:</p>
+<ol class="arabic simple">
+<li>Log Into the OpenStack web console and in the Manage Compute section, select
+&#8220;Access &amp; Security&#8221;.</li>
+<li>Select the &#8220;API Access&#8221; tab.</li>
+<li>Click on the &#8220;Download the OpenStack RC File&#8221; button. We&#8217;ll use this file to
+set up authentication.</li>
+<li>Download the RC file for each Data Center you want to provision servers in.
+You may have to log into different OpenStack web consoles.</li>
+</ol>
+<img alt="../_images/openstack_rc.png" src="../_images/openstack_rc.png" />
+<p>Open the file that you just downloaded. We are interested in three of the
+environment variables that are exported:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">OS_AUTH_URL</span><span class="o">=</span>https://my.openstack.com:5000/v2.0
+<span class="nb">export</span> <span class="nv">OS_TENANT_ID</span><span class="o">=</span>my-long-unique-id
+<span class="nb">export</span> <span class="nv">OS_TENANT_NAME</span><span class="o">=</span><span class="s2">&quot;my-project&quot;</span>
+</pre></div>
+</div>
+<p>Update your Terraform file with these values for the appropriate fields, and
+save the downloaded file for using the maintenance playbooks (you&#8217;ll just need
+to source the environment variables into your shell.)</p>
+</div>
+<div class="section" id="openstack-security-group">
+<h3>OpenStack Security Group<a class="headerlink" href="#openstack-security-group" title="Permalink to this headline">¶</a></h3>
+<p>In order for terraform to apply correctly, you need to create a security group
+in openstack for Mantl.</p>
+<p>You can either login to the Web UI to perform this task or use the openstack
+commmand line interface as below.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>openstack security group create &lt;group_name&gt;
+</pre></div>
+</div>
+<p>Once your group is created, ensure you update the openstack.tf file accordingly.</p>
+</div>
+<div class="section" id="openstack-username-password">
+<h3>OpenStack Username/Password<a class="headerlink" href="#openstack-username-password" title="Permalink to this headline">¶</a></h3>
+<p>The playbooks get Username/Password information via environment variables:</p>
+<dl class="envvar">
+<dt id="envvar-OS_USERNAME">
+<tt class="descname">OS_USERNAME</tt><a class="headerlink" href="#envvar-OS_USERNAME" title="Permalink to this definition">¶</a></dt>
+<dd><p>Your OpenStack username</p>
+</dd></dl>
+
+<dl class="envvar">
+<dt id="envvar-OS_PASSWORD">
+<tt class="descname">OS_PASSWORD</tt><a class="headerlink" href="#envvar-OS_PASSWORD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Your OpenStack password</p>
+</dd></dl>
+
+<p>Before running terraform or any playbooks, run the following command to to pull
+in your username and password for Ansible to use, changing the file name and
+location to the location of your OpenStack RC file:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="nb">source</span> ~/Downloads/my-project.rc
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The default OpenStack RC file will prompt for your password in order
+to set OS_PASSWORD.</p>
+</div>
+<p>Once you&#8217;re all set up there, run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare Terraform to
+provision your cluster, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be created, and
+<tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> to provision the cluster. Afterwards, you can use the
+instructions in <a class="reference internal" href="index.html"><em>getting started</em></a> to install
+Mantl on your new cluster.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/openstack.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

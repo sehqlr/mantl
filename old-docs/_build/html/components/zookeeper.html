@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ZooKeeper &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Common" href="common.html" />
+    <link rel="prev" title="Traefik" href="traefik.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="common.html" title="Common"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="traefik.html" title="Traefik"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="zookeeper">
+<h1>ZooKeeper<a class="headerlink" href="#zookeeper" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.1.</span></p>
+</div>
+<p><a class="reference external" href="https://zookeeper.apache.org/">ZooKeeper</a> is used for coordination among
+Mesos and Marathon nodes. Rather than storing things in this service yourself,
+you should prefer <a class="reference internal" href="consul.html"><em>Consul</em></a>.</p>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>You can use these variables to customize your ZooKepeer installation.</p>
+<dl class="data">
+<dt id="zk_id">
+<tt class="descname">zk_id</tt><a class="headerlink" href="#zk_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The value of <tt class="docutils literal"><span class="pre">zk_id</span></tt> in the ZooKeeper configuration file. If not provided
+it will be set by the playbook.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_service">
+<tt class="descname">zookeeper_service</tt><a class="headerlink" href="#zookeeper_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: zookeeper</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_env">
+<tt class="descname">zookeeper_env</tt><a class="headerlink" href="#zookeeper_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">dev</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_ensemble">
+<tt class="descname">zookeeper_ensemble</tt><a class="headerlink" href="#zookeeper_ensemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">mantl</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_container_name">
+<tt class="descname">zookeeper_container_name</tt><a class="headerlink" href="#zookeeper_container_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name that will be used for the container at runtime. Generated
+automatically from <a class="reference internal" href="#zookeeper_service" title="zookeeper_service"><tt class="xref py py-data docutils literal"><span class="pre">zookeeper_service</span></tt></a>, <a class="reference internal" href="#zookeeper_env" title="zookeeper_env"><tt class="xref py py-data docutils literal"><span class="pre">zookeeper_env</span></tt></a>,
+<a class="reference internal" href="#zookeeper_ensemble" title="zookeeper_ensemble"><tt class="xref py py-data docutils literal"><span class="pre">zookeeper_ensemble</span></tt></a>, and <a class="reference internal" href="#zk_id" title="zk_id"><tt class="xref py py-data docutils literal"><span class="pre">zk_id</span></tt></a> if not set.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_data_volume">
+<tt class="descname">zookeeper_data_volume</tt><a class="headerlink" href="#zookeeper_data_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the data volume to store state in. Generated automatically from
+<a class="reference internal" href="#zookeeper_env" title="zookeeper_env"><tt class="xref py py-data docutils literal"><span class="pre">zookeeper_env</span></tt></a>, <a class="reference internal" href="#zookeeper_ensemble" title="zookeeper_ensemble"><tt class="xref py py-data docutils literal"><span class="pre">zookeeper_ensemble</span></tt></a>, and <a class="reference internal" href="#zk_id" title="zk_id"><tt class="xref py py-data docutils literal"><span class="pre">zk_id</span></tt></a> if not
+set.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_docker_image">
+<tt class="descname">zookeeper_docker_image</tt><a class="headerlink" href="#zookeeper_docker_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">asteris/zookeeper</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_docker_tag">
+<tt class="descname">zookeeper_docker_tag</tt><a class="headerlink" href="#zookeeper_docker_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">latest</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_docker_ports">
+<tt class="descname">zookeeper_docker_ports</tt><a class="headerlink" href="#zookeeper_docker_ports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Port arguments, which will be passed directly to docker. Opens TCP 2181,
+2888, and 3888 by default.</p>
+<p>default: <tt class="docutils literal"><span class="pre">&quot;-p</span> <span class="pre">2181:2181</span> <span class="pre">-p</span> <span class="pre">2888:2888</span> <span class="pre">-p</span> <span class="pre">3888:3888&quot;</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_docker_env">
+<tt class="descname">zookeeper_docker_env</tt><a class="headerlink" href="#zookeeper_docker_env" title="Permalink to this definition">¶</a></dt>
+<dd><p>default: <tt class="docutils literal"><span class="pre">&quot;/etc/default/{{</span> <span class="pre">zookeeper_service</span> <span class="pre">}}&quot;</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_log_threshold">
+<tt class="descname">zookeeper_log_threshold</tt><a class="headerlink" href="#zookeeper_log_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log level for ZooKeeper</p>
+<p>default: <tt class="docutils literal"><span class="pre">WARN</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_log_retain_count">
+<tt class="descname">zookeeper_log_retain_count</tt><a class="headerlink" href="#zookeeper_log_retain_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of zookeeper transaction logs and snapshots to keep.</p>
+<p>default: <tt class="docutils literal"><span class="pre">3</span></tt></p>
+</dd></dl>
+
+<dl class="data">
+<dt id="zookeeper_log_purge_interval">
+<tt class="descname">zookeeper_log_purge_interval</tt><a class="headerlink" href="#zookeeper_log_purge_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Interval in hours that zookeeper waits to purge transacton logs and snapshots.</p>
+<p>default: <tt class="docutils literal"><span class="pre">12</span></tt></p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logstash.html">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/zookeeper.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

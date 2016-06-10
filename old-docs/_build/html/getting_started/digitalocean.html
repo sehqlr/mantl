@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DigitalOcean &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Getting Started" href="index.html" />
+    <link rel="next" title="VMware vSphere" href="vsphere.html" />
+    <link rel="prev" title="Amazon Web Services" href="aws.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="vsphere.html" title="VMware vSphere"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="aws.html" title="Amazon Web Services"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Getting Started</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="digitalocean">
+<h1>DigitalOcean<a class="headerlink" href="#digitalocean" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.3.</span></p>
+</div>
+<p>As of Mantl 0.3 you can bring up DigitalOcean
+environments using Terraform.</p>
+<div class="section" id="configuring-terraform-for-digitalocean">
+<h2>Configuring Terraform for DigitalOcean<a class="headerlink" href="#configuring-terraform-for-digitalocean" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/digitalocean.sample.tf</span></tt>. It looks like
+this:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span>provider &quot;digitalocean&quot; {
+  token = &quot;&quot;
+}
+
+module &quot;do-keypair&quot; {
+  source = &quot;./terraform/digitalocean/keypair&quot;
+  public_key_filename = &quot;~/.ssh/id_rsa.pub&quot;
+}
+
+module &quot;do-hosts&quot; {
+  source = &quot;./terraform/digitalocean/hosts&quot;
+  ssh_key = &quot;${module.do-keypair.keypair_id}&quot;
+  region_name = &quot;nyc3&quot; # this must be a region with metadata support
+
+  control_count = 3
+  worker_count = 4
+  kubeworker_count = 2
+  edge_count = 2
+}
+</pre></div>
+</div>
+<p>Copy that file in it&#8217;s entirety to the root of the project to start
+customization. In the next sections, we&#8217;ll explain how to obtain these settings.</p>
+<div class="section" id="api-key">
+<h3>API Key<a class="headerlink" href="#api-key" title="Permalink to this headline">¶</a></h3>
+<p>To use DigitalOcean from Terraform, you&#8217;ll need an API key. You can create one
+at the API page of DigitalOcean UI.</p>
+<img alt="The DigitalOcean API UI" src="../_images/digitalocean_no_tokens.png" />
+<p>To create a token, click &#8220;Generate New Token&#8221; in the &#8220;Personal Access Tokens&#8221;
+list. Name your token (<tt class="docutils literal"><span class="pre">mantl</span></tt> could be a good name) and make sure that write
+access is granted.</p>
+<img alt="The token creation page, making sure write access is granted." src="../_images/digitalocean_new_token.png" />
+<p>Once your token is created, you will need to copy it to the &#8220;token&#8221; field of the
+DigitalOcean provider. The token will only be displayed once, so do it before
+refreshing the page or navigating away.</p>
+<img alt="The DigitalOcean API UI showing a created token." src="../_images/digitalocean_created_token.png" />
+<p>If you don&#8217;t want to keep your access token in a file, you can instead write it
+to an environment variable:</p>
+<dl class="envvar">
+<dt id="envvar-DIGITALOCEAN_TOKEN">
+<tt class="descname">DIGITALOCEAN_TOKEN</tt><a class="headerlink" href="#envvar-DIGITALOCEAN_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd><p>The DigitalOcean token to use for Terraform-created resources</p>
+</dd></dl>
+
+</div>
+<div class="section" id="regions-and-sizes">
+<h3>Regions and Sizes<a class="headerlink" href="#regions-and-sizes" title="Permalink to this headline">¶</a></h3>
+<p>As the sample notes, the region you deploy in must support metadata. All the
+newer regions support this (NYC3, for instance.) If you don&#8217;t use a
+metadata-supported region Ansible will not know which roles to apply to your
+servers.</p>
+<p>To find out if your desired region has metadata support:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>curl -u <span class="s2">&quot;</span><span class="nv">$DIGITALOCEAN_KEY</span><span class="s2">:&quot;</span> https://api.digitalocean.com/v2/regions
+</pre></div>
+</div>
+<p>This call will return a list of objects like the following. If <tt class="docutils literal"><span class="pre">&quot;metadata&quot;</span></tt> is
+in the &#8220;features&#8221; key, you can use the provided slug as <tt class="docutils literal"><span class="pre">region_name</span></tt> to
+select it.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;New York 3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;slug&quot;</span><span class="p">:</span> <span class="s2">&quot;nyc3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;sizes&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;32gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;16gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;4gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;8gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;512mb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;64gb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;48gb&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;features&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;private_networking&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;backups&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ipv6&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;metadata&quot;</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;available&quot;</span><span class="p">:</span> <span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="provisioning">
+<h2>Provisioning<a class="headerlink" href="#provisioning" title="Permalink to this headline">¶</a></h2>
+<p>Once you&#8217;re all set up with the provider, customize your modules (for
+<tt class="docutils literal"><span class="pre">control_count</span></tt> and <tt class="docutils literal"><span class="pre">worker_count</span></tt>), run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare
+Terraform to provision your cluster, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be
+created, and <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> to provision the cluster. Afterwards, you can
+use the instructions in <a class="reference internal" href="index.html"><em>getting started</em></a> to install
+Mantl on your new cluster.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/digitalocean.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

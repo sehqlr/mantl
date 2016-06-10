@@ -1,0 +1,491 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Amazon Web Services &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Using the Dockerfile" href="dockerfile.html" />
+    <link rel="next" title="Components" href="../components/index.html" />
+    <link rel="prev" title="Route53" href="route53.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../components/index.html" title="Components"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="route53.html" title="Route53"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Getting Started</a> &raquo;</li>
+          <li><a href="dockerfile.html" accesskey="U">Using the Dockerfile</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="amazon-web-services">
+<h1>Amazon Web Services<a class="headerlink" href="#amazon-web-services" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.0: </span>multi-az support and terraform modularization</p>
+</div>
+<p>As of Mantl 0.3 you can bring up Amazon Web Services
+environments using Terraform. You can <a class="reference external" href="https://www.terraform.io/downloads.html">download Terraform from terraform.io</a>.</p>
+<div class="section" id="configuring-amazon-web-services-for-terraform">
+<h2>Configuring Amazon Web Services for Terraform<a class="headerlink" href="#configuring-amazon-web-services-for-terraform" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/aws.sample.tf</span></tt>. The beginning of it looks like this:</p>
+<div class="code highlight-python"><div class="highlight"><pre><span></span>variable &quot;amis&quot; {
+  default = {
+    us-east-1      = &quot;ami-6d1c2007&quot;
+    us-west-2      = &quot;ami-d2c924b2&quot;
+    us-west-1      = &quot;ami-af4333cf&quot;
+    eu-central-1   = &quot;ami-9bf712f4&quot;
+    eu-west-1      = &quot;ami-7abd0209&quot;
+    ap-southeast-1 = &quot;ami-f068a193&quot;
+    ap-southeast-2 = &quot;ami-fedafc9d&quot;
+    ap-northeast-1 = &quot;ami-eec1c380&quot;
+    sa-east-1      = &quot;ami-26b93b4a&quot;
+  }
+}
+variable &quot;availability_zones&quot;  {
+  default = &quot;a,b,c&quot;
+}
+variable &quot;control_count&quot; { default = 3 }
+variable &quot;datacenter&quot; {default = &quot;aws-us-west-2&quot;}
+variable &quot;edge_count&quot; { default = 2 }
+variable &quot;region&quot; {default = &quot;us-west-2&quot;}
+variable &quot;short_name&quot; {default = &quot;mantl&quot;}
+variable &quot;ssh_username&quot; {default = &quot;centos&quot;}
+variable &quot;worker_count&quot; { default = 4 }
+variable &quot;kubeworker_count&quot; { default = 2 }
+variable &quot;dns_subdomain&quot; { default = &quot;.dev&quot; }
+variable &quot;dns_domain&quot; { default = &quot;my-domain.com&quot; }
+variable &quot;dns_zone_id&quot; { default = &quot;XXXXXXXXXXXX&quot; }
+variable &quot;control_type&quot; { default = &quot;m3.medium&quot; }
+variable &quot;edge_type&quot; { default = &quot;m3.medium&quot; }
+variable &quot;worker_type&quot; { default = &quot;m3.large&quot; }
+variable &quot;kubeworker_type&quot; { default = &quot;m3.large&quot; }
+
+provider &quot;aws&quot; {
+  region = &quot;${var.region}&quot;
+}
+</pre></div>
+</div>
+<p>Copy that <em>file</em> in it&#8217;s entirety to the root of the project as <tt class="docutils literal"><span class="pre">aws.tf</span></tt> to start
+customization. In the next sections, we&#8217;ll describe the settings that you need
+to configure.</p>
+<p>Do not copy the text contents above into a file, if you do not have the terraform/aws.sample.tf file, you need to clone the mantl repository.
+Please note, newer versions of this file do not have &#8220;access_key&#8221; or &#8220;secret_key&#8221; lines, we automatically find your AWS credentials from amazon&#8217;s new &#8220;AWS Credentials file&#8221; standard.</p>
+<p>Store your credentials like below in a file called <tt class="docutils literal"><span class="pre">~/.aws/credentials</span></tt> on Linux/Mac, or <tt class="docutils literal"><span class="pre">%USERPROFILE%\.aws\credentials</span></tt> on Windows.</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>[default]
+aws_access_key_id = ACCESS_KEY
+aws_secret_access_key = SECRET_KEY
+</pre></div>
+</div>
+<p>If you do not have an AWS access key ID and secret key, then follow the &#8220;Creating an IAM user&#8221; section below. If you already have working AWS credentials, you can skip this step.</p>
+<div class="section" id="creating-an-iam-user">
+<h3>Creating an IAM User<a class="headerlink" href="#creating-an-iam-user" title="Permalink to this headline">¶</a></h3>
+<p>Before running Terraform, we need to supply it with valid AWS credentials. While
+you could use the credentials for your AWS root account, it is <a class="reference external" href="http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html">not recommended</a>.
+In this section, we&#8217;ll cover creating an <a class="reference external" href="http://docs.aws.amazon.com/IAM/latest/UserGuide/id.html">IAM User</a>
+that has the necessary permissions to build your cluster with Terraform.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You&#8217;ll need to have an existing AWS account with sufficient IAM
+permissions in order to follow along. If not, ask your account owner
+to perform this step for you.</p>
+</div>
+<p>First, sign in to your AWS Console and navigate to the <a class="reference external" href="https://console.aws.amazon.com/iam/home">Identity &amp; Access
+Management (IAM)</a> service.</p>
+<img alt="The AWS Identity &amp; Access Management Service" src="../_images/aws_iam.png" />
+<p>Next, navigate to the &#8220;Users&#8221; screen and click the &#8220;Create New Users&#8221; button.</p>
+<img alt="Create IAM User" src="../_images/aws_iam_users.png" />
+<p>You will be given the opportunity to create 5 different users on the next
+screen. For our purposes, we are just going to create one: &#8220;mantl&#8221;. Make sure
+that you leave the &#8220;Generate an access key for each user&#8221; option checked and
+click the &#8220;Create&#8221; button.</p>
+<img alt="IAM Create User" src="../_images/aws_iam_create_user.png" />
+<p>On the next screen, you will be able to view and download your new Access Key ID
+and Secret Access Key. Make sure you capture these values in a safe and secure
+place as you will need them in the next section. You won&#8217;t be able to retrieve
+your secret key later (although you can generate a new one, if needed).</p>
+<p>The next step is to grant permissions to your new IAM user. Navigate back to the
+&#8220;Users&#8221; section and then click on the user name you just created. On the next
+screen, you will be able to manage the groups your user belongs to and to grant
+the permissions to view and modify AWS resources. For this example, we will not
+be using groups but that would be an option if you wanted to create multiple IAM
+users with the same permissions. We are going to keep it simple and use a
+managed policy to grant the necessary permissions to our IAM user.</p>
+<p>Click the &#8220;Attach Policy&#8221; button.</p>
+<img alt="IAM User attach policy" src="../_images/aws_iam_attach_policy.png" />
+<p>On the &#8220;Attach Policy&#8221; screen you will see a long list of pre-built permissions
+policies. You can either scroll through the list or use the search filter to
+find the policy named &#8220;AmazonEC2FullAccess&#8221;. Check the box next to that policy
+and click the &#8220;Attach Policy&#8221; button.</p>
+<img alt="IAM AmazonEC2FullAccess Managed Policy" src="../_images/aws_ec2fullaccess.png" />
+<p>That&#8217;s it. At this point, your IAM user has sufficient privileges to provision
+your cluster with Terraform.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Technically the &#8220;AmazonEC2FullAccess&#8221; managed policy grants more
+permissions than are actually needed. If you are interested in
+configuring your IAM user with the minimum set of permissions to
+provision a cluster, you can see the custom policy included at the
+bottom of this document.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you want to manage DNS with Route 53, you will need to attach a
+Route 53 policy as well.</p>
+</div>
+<img alt="IAM User attach route 53 policy" src="../_images/aws_iam_attach_route53_policy.png" />
+</div>
+<div class="section" id="provider-settings">
+<h3>Provider Settings<a class="headerlink" href="#provider-settings" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">access_key</span></tt> and <tt class="docutils literal"><span class="pre">secret_key</span></tt> are the required credentials needed by
+Terraform to interact with resources in your AWS account. AWS credentials can be
+retrieved when creating a new account or IAM user. New keys can be generated and
+retrieved by managing Access Keys in the IAM Web Console. If you don&#8217;t want to
+commit these values in the Terraform template, you can add them to your <a class="reference external" href="https://blogs.aws.amazon.com/security/post/Tx3D6U6WSFGOK2H/A-New-and-Standardized-Way-to-Manage-Credentials-in-the-AWS-SDKs">~/.aws/credentials</a>
+file or source them from the environment instead:</p>
+<dl class="envvar">
+<dt id="envvar-AWS_ACCESS_KEY_ID">
+<tt class="descname">AWS_ACCESS_KEY_ID</tt><a class="headerlink" href="#envvar-AWS_ACCESS_KEY_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>The AWS Access Key for a valid AWS account or IAM user with the necessary
+permissions.</p>
+</dd></dl>
+
+<dl class="envvar">
+<dt id="envvar-AWS_SECRET_ACCESS_KEY">
+<tt class="descname">AWS_SECRET_ACCESS_KEY</tt><a class="headerlink" href="#envvar-AWS_SECRET_ACCESS_KEY" title="Permalink to this definition">¶</a></dt>
+<dd><p>The AWS secret key.</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">As a <a class="reference external" href="http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html">best practice</a>, it is preferred that you use credentials for an
+IAM user with appropriate permissions rather than using root account
+credentials.</p>
+</div>
+<p><tt class="docutils literal"><span class="pre">region</span></tt> is the AWS <a class="reference external" href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">region</a>
+where your cluster will be provisioned. As an alternative to specifying
+<tt class="docutils literal"><span class="pre">region</span></tt> in the file, it can be read from the environment:</p>
+<dl class="envvar">
+<dt id="envvar-AWS_DEFAULT_REGION">
+<tt class="descname">AWS_DEFAULT_REGION</tt><a class="headerlink" href="#envvar-AWS_DEFAULT_REGION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The AWS region in which to provision cluster instances.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="basic-settings">
+<h3>Basic Settings<a class="headerlink" href="#basic-settings" title="Permalink to this headline">¶</a></h3>
+<p><tt class="docutils literal"><span class="pre">short_name</span></tt> is appended to the name tag and dns (if used) of each of the nodes to help better identify them.
+If you are planning to deploy multiple mantl clusters into the same AWS account, you&#8217;ll need to change this
+(otherwise AWS items like ssh key names will conflict and the second <tt class="docutils literal"><span class="pre">`terraform</span> <span class="pre">plan`</span></tt> will fail)</p>
+<ul class="simple">
+<li>The defaults for the below settings will work out of the box in amazons US-WEST-1 Datacenter, change them if you don&#8217;t want these defaults, or if you want larger VM&#8217;s for each of the Mantl nodes *</li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">region</span></tt> is the name of the <a class="reference external" href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">region</a>
+where your cluster resources will be provisioned. As long as your control, worker and edge count is
+greater than 1, your nodes will be spread across the availability zones in your <tt class="docutils literal"><span class="pre">region</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">availability_zones</span></tt> are the availability zones in your region that you want to deploy your EC2 instances to.</p>
+<p><tt class="docutils literal"><span class="pre">source_ami</span></tt> is the EC2 AMI to use for your cluster instances. This must be an
+AMI id that is available in the <tt class="docutils literal"><span class="pre">region</span></tt> your specified.</p>
+<p><tt class="docutils literal"><span class="pre">ssh_username</span></tt> is the default user name for SSH access to your cluster hosts.
+This value will be dependent on the <tt class="docutils literal"><span class="pre">source_ami</span></tt> that you use. Common values
+are <tt class="docutils literal"><span class="pre">centos</span></tt> or <tt class="docutils literal"><span class="pre">ec2-user</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">datacenter</span></tt> is a name to identify your datacenter, this is important if you have more than one datacenter.</p>
+<p><tt class="docutils literal"><span class="pre">control_count</span></tt>, <tt class="docutils literal"><span class="pre">edge_count</span></tt> and <tt class="docutils literal"><span class="pre">worker_count</span></tt> are the number of EC2 instances that will get deployed for each node type.</p>
+<p><tt class="docutils literal"><span class="pre">control_type</span></tt>, <tt class="docutils literal"><span class="pre">edge_type</span></tt> and <tt class="docutils literal"><span class="pre">worker_type</span></tt> are used to specify the <a class="reference external" href="https://aws.amazon.com/ec2/instance-types/">EC2 instance type</a>
+for your control nodes and worker nodes and they must be compatible with the
+<tt class="docutils literal"><span class="pre">source_ami</span></tt> you have specified. The default EC2 instance type is an m3.medium.</p>
+</div>
+<div class="section" id="security-setup">
+<h3>Security Setup<a class="headerlink" href="#security-setup" title="Permalink to this headline">¶</a></h3>
+<p>Mantl doesn&#8217;t ship with default passwords or certs. For security, we have provided a script to generate
+all the security configuration for your deployment.</p>
+<p>Please run <tt class="docutils literal"><span class="pre">./security_setup</span></tt> from the base of the mantl repository.
+This will generate certificates and other security tokens needed for the mantl deployment, as well as prompting you for a mantl admin password.</p>
+<p>If you get an &#8216;Import&#8217; error when running security setup, your local machine lacks certain python modules that the script needs.
+Please try `` pip install pyyaml `` and then re-run <tt class="docutils literal"><span class="pre">./security_setup</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="provisioning">
+<h2>Provisioning<a class="headerlink" href="#provisioning" title="Permalink to this headline">¶</a></h2>
+<p>Once you&#8217;re all set up with the provider, customize your modules (for
+<tt class="docutils literal"><span class="pre">control_count</span></tt>, <tt class="docutils literal"><span class="pre">worker_count</span></tt>, etc), run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare
+Terraform to provision your cluster, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be
+created, and <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> to provision the cluster.</p>
+<p>After <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> has completed without errors, you&#8217;re ready to continue.
+Next, follow the instructions at <a class="reference internal" href="index.html"><em>getting started</em></a> to install
+Mantl on your new AWS VM&#8217;s</p>
+<ul class="simple">
+<li>The below sections are for more information / customization only. They are not required *</li>
+</ul>
+<div class="section" id="terraform-state">
+<h3>Terraform State<a class="headerlink" href="#terraform-state" title="Permalink to this headline">¶</a></h3>
+<p>Terraform stores the <a class="reference external" href="https://www.terraform.io/docs/state/index.html">state</a> of your
+infrastructure in a file called &#8220;terraform.tfstate&#8221;. This file can be stored locally
+or in a <a class="reference external" href="https://www.terraform.io/docs/state/index.html">remote</a> location such as S3.
+If you use the <tt class="docutils literal"><span class="pre">aws.sample.tf</span></tt> that is provided, by default the state of all the modules
+are stored in local terraform.tfstate file at the root of this project.</p>
+<p>Instead of storing the state for all the modules in one file, you might deploy the modules
+independently and have different terraform.tfstate for each module (either locally or remote).
+This can help with blue/green deployments, or making sure you don&#8217;t accidentally override more static
+parts of the infrastructure such as a VPC.</p>
+<p>In the aws.sample.tf we have included examples of how you would reference a remote state file for VPC variables.</p>
+<p>To create <tt class="docutils literal"><span class="pre">terraform.tfstate</span></tt> locally for the VPC module, you would simply run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt>, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> and
+<tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt> in the <tt class="docutils literal"><span class="pre">terraform/aws/vpc/</span></tt> directory.
+Then in your <tt class="docutils literal"><span class="pre">aws.tf</span></tt> file you would want to comment out:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>module &quot;vpc&quot; {
+  source =&quot;./terraform/aws/vpc&quot;
+  availability_zones = &quot;${availability_zones}&quot;
+  short_name = &quot;${var.short_name}&quot;
+  region = &quot;${var.region}&quot;
+}
+</pre></div>
+</div>
+<p>And uncomment:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>#resource &quot;terraform_remote_state&quot; &quot;vpc&quot; {
+#  backend = &quot;_local&quot;
+#  config {
+#    path = &quot;./vpc/terraform.tfstate&quot;
+#  }
+# }
+
+#availability_zones = &quot;${terraform_remote_state.vpc.output.availability_zones}&quot;
+#default_security_group_id = &quot;${terraform_remote_state.vpc.output.default_security_group}&quot;
+#vpc_id = &quot;${terraform_remote_state.vpc.output.vpc_id}&quot;
+#vpc_subnet_ids = &quot;${terraform_remote_state.vpc.output.subnet_ids}&quot;
+</pre></div>
+</div>
+<p>Ideally you would store the state remotely, but configuring that is outside the scope of
+this document. <a class="reference external" href="http://blog.mattiasgees.be/2015/07/29/terraform-remote-state/">This</a> is a
+good explanation on how to configure and use remote state.</p>
+</div>
+<div class="section" id="custom-iam-policy">
+<h3>Custom IAM Policy<a class="headerlink" href="#custom-iam-policy" title="Permalink to this headline">¶</a></h3>
+<p>At the time of this writing, the following IAM policy grants the minimal
+permissions needed to provision an AWS cluster with Terraform.</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;Version&quot;</span><span class="o">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;Statement&quot;</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;Sid&quot;</span><span class="o">:</span> <span class="s2">&quot;Stmt1433450536000&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Effect&quot;</span><span class="o">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;Action&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="s2">&quot;ec2:AttachInternetGateway&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:AttachVolume&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:AuthorizeSecurityGroupIngress&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateInternetGateway&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateRoute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateRouteTable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateSecurityGroup&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateSubnet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateTags&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateVolume&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:CreateVpc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteInternetGateway&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteKeyPair&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteRouteTable&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteSecurityGroup&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteSubnet&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteVolume&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DeleteVpc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeImages&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeInstances&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeInternetGateways&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeKeyPairs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeNetworkAcls&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeRouteTables&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeSecurityGroups&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeSubnets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeVolumes&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeVpcAttribute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DescribeVpcs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DetachInternetGateway&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:DetachVolume&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:ImportKeyPair&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:ModifyInstanceAttribute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:ModifyVpcAttribute&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:ReplaceRouteTableAssociation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:RevokeSecurityGroupEgress&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:RunInstances&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ec2:TerminateInstances&quot;</span>
+      <span class="p">],</span>
+      <span class="s2">&quot;Resource&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="s2">&quot;*&quot;</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For managing DNS with Route 53, you can use a policy like the following:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="s2">&quot;Version&quot;</span><span class="o">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;Statement&quot;</span><span class="o">:</span><span class="p">[</span>
+      <span class="p">{</span>
+         <span class="s2">&quot;Effect&quot;</span><span class="o">:</span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;Action&quot;</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;route53:ChangeResourceRecordSets&quot;</span><span class="p">],</span>
+         <span class="s2">&quot;Resource&quot;</span><span class="o">:</span><span class="s2">&quot;arn:aws:route53:::hostedzone/YOUR_ZONE_HOSTED_ID&quot;</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+         <span class="s2">&quot;Effect&quot;</span><span class="o">:</span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;Action&quot;</span><span class="o">:</span><span class="p">[</span><span class="s2">&quot;route53:GetChange&quot;</span><span class="p">],</span>
+         <span class="s2">&quot;Resource&quot;</span><span class="o">:</span><span class="s2">&quot;arn:aws:route53:::change/*&quot;</span>
+      <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You would replace HOSTED_ZONE_ID with the hosted zone ID of your domain in
+Route 53.</p>
+</div>
+<div class="section" id="adding-an-elastic-load-balancer-elb">
+<h3>Adding an Elastic Load Balancer (ELB)<a class="headerlink" href="#adding-an-elastic-load-balancer-elb" title="Permalink to this headline">¶</a></h3>
+<p>Optionally, you can configure your environment to include an Elastic Load
+Balancer (ELB) in front of Mantl UI.</p>
+<p>You will need to ensure that your IAM user has the following permissions:</p>
+<ul class="simple">
+<li>elasticloadbalancing:AddTags</li>
+<li>elasticloadbalancing:ApplySecurityGroupsToLoadBalancer</li>
+<li>elasticloadbalancing:ConfigureHealthCheck</li>
+<li>elasticloadbalancing:CreateLoadBalancer</li>
+<li>elasticloadbalancing:CreateLoadBalancerListeners</li>
+<li>elasticloadbalancing:DeleteLoadBalance</li>
+<li>elasticloadbalancing:DescribeLoadBalancerAttributes</li>
+<li>elasticloadbalancing:DescribeLoadBalancers</li>
+<li>elasticloadbalancing:ModifyLoadBalancerAttributes</li>
+<li>elasticloadbalancing:RegisterInstancesWithLoadBalancer</li>
+<li>iam:DeleteServerCertificate</li>
+<li>iam:GetServerCertificate</li>
+<li>iam:UploadServerCertificate</li>
+</ul>
+<p>In your <tt class="docutils literal"><span class="pre">aws.tf</span></tt>, you will want to uncomment the aws-elb module:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span># Example setup for an AWS ELB
+module &quot;aws-elb&quot; {
+  source = &quot;./terraform/aws/elb&quot;
+  short_name = &quot;${var.short_name}&quot;
+  instances = &quot;${module.control-nodes.control_ids}&quot;
+  subnets = &quot;${terraform_remote_state.vpc.output.subnet_ids}&quot;
+  security_groups = &quot;${module.control-nodes.ui_security_group},${terraform_remote_state.vpc.output.default_security_group}&quot;
+}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/aws.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,10 @@
+site_name: Mantl
+site_url: https://mantl.io
+repo_url: https://github.com/CiscoCloud/mantl
+copyright: "2016 Cisco Systems"
+pages:
+        - 'index.md'
+        - "Core Components":
+                - "consul.md"
+        - "Addon Components":
+                - 'kafka.md'

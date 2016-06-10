@@ -1,0 +1,67 @@
+
+Components
+**********
+
+Mantl is made up of a number of components which can be customized,
+generally using Ansible variables.
+
+* Calico
+
+* Chronos
+
+* Collectd
+
+* Consul
+
+* Distributive
+
+* dnsmasq
+
+* Docker
+
+* ELK
+
+* etcd
+
+* GlusterFS
+
+* Haproxy
+
+* Kafka
+
+* Kubernetes
+
+* Logstash
+
+* Marathon
+
+* Mesos
+
+* Traefik
+
+* ZooKeeper
+
+The project also includes a number of Ansible roles that multiple
+components can use:
+
+* Common
+
+* consul-template
+
+* logrotate
+
+* Nginx
+
+The following technology previews are also included. These may be used
+more fully in the future, but now just exist for preview purposes to
+gather feedback and build initial implementations against:
+
+* Vault
+
+Mantl includes some logic that is provided via our own packaging
+system, and so is not visible in the Ansible roles. Here are the links
+to our package sources:
+
+   * mantl-packaging
+
+   * mesos-packaging

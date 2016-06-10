@@ -1,0 +1,323 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Getting Started &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="next" title="OpenStack" href="openstack.html" />
+    <link rel="prev" title="Mantl documentation" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="openstack.html" title="OpenStack"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Mantl documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>This document assumes you have a <a class="reference external" href="http://docs.ansible.com/intro_installation.html#installing-the-control-machine">working Ansible
+installation</a>. If you don&#8217;t, install Ansible before
+continuing. This can be done simply by running <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span>
+<span class="pre">requirements.txt</span></tt> from the root of the project.</p>
+<p class="last">It also assumes you have a working Terraform installation. You
+can download Terraform from <a class="reference external" href="https://www.terraform.io/downloads.html">Terraform downloads</a>.</p>
+</div>
+</div>
+<div class="section" id="general-information-about-mantl-with-ansible">
+<h1>General Information about Mantl with Ansible<a class="headerlink" href="#general-information-about-mantl-with-ansible" title="Permalink to this headline">¶</a></h1>
+<p>The Mantl project uses Ansible to bring up nodes and clusters. This generally
+means that you need three things:</p>
+<ol class="arabic simple">
+<li>Hosts to use as the base for your cluster</li>
+<li>An <a class="reference external" href="http://docs.ansible.com/intro_inventory.html">inventory file</a> with the hosts you want to be modified. Mantl includes
+an Ansible inventory for terraformed hosts, <a class="reference external" href="https://github.com/CiscoCloud/mantl/blob/master/plugins/inventory/terraform.py">terraform.py</a>.</li>
+<li>A playbook matching Ansible roles to hosts. Mantl organizes its components
+in <a class="reference external" href="https://github.com/CiscoCloud/mantl/blob/master/sample.yml">sample.yml</a>, which we recommend copying to <tt class="docutils literal"><span class="pre">mantl.yml</span></tt> for the
+possibility of later customization. You can read more about <a class="reference external" href="http://docs.ansible.com/ansible/playbooks.html">playbooks</a> in
+the <a class="reference external" href="http://docs.ansible.com/ansible/">Ansible docs</a>.</li>
+</ol>
+<div class="section" id="preparing-to-provision-cloud-hosts">
+<h2>Preparing to provision Cloud Hosts<a class="headerlink" href="#preparing-to-provision-cloud-hosts" title="Permalink to this headline">¶</a></h2>
+<p>The playbooks and roles in this project will work on whatever provider
+(or metal) you care to spin up, as long as it can run CentOS 7 or
+equivalent.</p>
+<p>Your hosts will have to be accessible with your SSH key. If you&#8217;re unfamiliar
+with SSH keys, please read <a class="reference external" href="https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2">DigitalOcean&#8217;s guide to setting up SSH keys</a>.</p>
+<p>Here are some guides specific to each of the platforms that Mantl supports:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openstack.html">OpenStack</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gce.html">Google Compute Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.html">Amazon Web Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="digitalocean.html">DigitalOcean</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vsphere.html">VMware vSphere</a></li>
+<li class="toctree-l1"><a class="reference internal" href="softlayer.html">SoftLayer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clc.html">CenturyLinkCloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bare-metal.html">Bare-Metal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="vagrant.html">Vagrant</a></li>
+<li class="toctree-l1"><a class="reference internal" href="triton.html">Triton</a></li>
+</ul>
+</div>
+<p>There are several preparatory steps to provisioning the cloud hosts that are
+common to all providers:</p>
+<div class="section" id="step-1-copy-tf-file">
+<h3>Step 1: Copy .tf file<a class="headerlink" href="#step-1-copy-tf-file" title="Permalink to this headline">¶</a></h3>
+<p>You will need to copy the .tf file of the platform you are using from
+<a class="reference external" href="https://github.com/CiscoCloud/mantl/tree/master/terraform">mantl/terraform/</a> to the root of the project. For example,
+<tt class="docutils literal"><span class="pre">mantl/terraform/openstack-modules.sample.tf</span></tt> will need to be copied to
+<tt class="docutils literal"><span class="pre">mantl/openstack-module-sample.tf</span></tt>. The variables in the copied .tf file will
+need to be changed to your configuration.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">More than one .tf file in the mantl directory will lead to errors upon
+deployment. Since Mantl initially does not support multiple datacenters, extra .tf files will
+need to be renamed or moved. If you would like to add multiple datacenters see the <a class="reference external" href="https://www.consul.io/docs/guides/datacenters.html">Consul docs</a> for more information.</p>
+</div>
+</div>
+<div class="section" id="step-2-run-security-setup">
+<h3>Step 2: Run security-setup<a class="headerlink" href="#step-2-run-security-setup" title="Permalink to this headline">¶</a></h3>
+<p>Running the <tt class="docutils literal"><span class="pre">security-setup</span></tt> script in the root directory will set
+up passwords, authentication, and certificates. For more information, see
+<a class="reference internal" href="../security/security_setup.html"><em>the security-setup script</em></a> documentation.</p>
+</div>
+<div class="section" id="step-3-set-up-dns-records">
+<h3>Step 3: Set up DNS records<a class="headerlink" href="#step-3-set-up-dns-records" title="Permalink to this headline">¶</a></h3>
+<p>You can set up your DNS records with Terraform. See <a class="reference internal" href="dns.html"><em>DNS</em></a>.</p>
+</div>
+</div>
+<div class="section" id="deploying-software-via-ansible">
+<h2>Deploying software via Ansible<a class="headerlink" href="#deploying-software-via-ansible" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ansible requres a Python 2 binary. If yours is not at /usr/bin/python,
+please view the <a class="reference external" href="http://docs.ansible.com/faq.html">Ansible FAQ</a>. You
+can add an extra variable to the following commands, e.g.
+<tt class="docutils literal"><span class="pre">ansible</span> <span class="pre">-e</span> <span class="pre">ansible_python_interpreter=/path/to/python2</span></tt>.</p>
+</div>
+<p>The following steps assume that you have provisioned your cloud host by taking
+the steps listed in one of the guides above.</p>
+<p>This project ships with a dynamic inventory file to read Terraform <tt class="docutils literal"><span class="pre">.tfstate</span></tt>
+files, <a class="reference external" href="https://github.com/CiscoCloud/mantl/blob/master/plugins/inventory/terraform.py">terraform.py</a>.  If you are not running Ansible from the root directory
+or would like to use a custom inventory file, you can use the <tt class="docutils literal"><span class="pre">-i</span></tt> argument
+of <tt class="docutils literal"><span class="pre">ansible</span></tt> or <tt class="docutils literal"><span class="pre">ansible-playbook</span></tt> to specify the inventory file path.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -i path/to/inventory -e @security.yml mantl.yml
+</pre></div>
+</div>
+<div class="section" id="step-1-add-password-to-the-ssh-agent">
+<h3>Step 1: Add password to the ssh-agent<a class="headerlink" href="#step-1-add-password-to-the-ssh-agent" title="Permalink to this headline">¶</a></h3>
+<p>For the next steps, you may want to <a class="reference external" href="https://wiki.archlinux.org/index.php?title=SSH_keys&amp;redirect=no#SSH_agents">add your password to the ssh-agent</a>
+avoid re-entering your password.</p>
+</div>
+<div class="section" id="step-2-ping-the-servers-to-ensure-they-are-reachable-via-ssh">
+<h3>Step 2: Ping the servers to ensure they are reachable via ssh<a class="headerlink" href="#step-2-ping-the-servers-to-ensure-they-are-reachable-via-ssh" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible all -m ping
+</pre></div>
+</div>
+<p>It may take a few minutes after running terraform for the servers to be
+reachable. If any servers fail to connect, you can check your connection by
+adding <tt class="docutils literal"><span class="pre">-vvvv</span></tt> for verbose SSH debugging to view the errors in
+more detail.</p>
+</div>
+<div class="section" id="step-3-upgrade-packages">
+<h3>Step 3: Upgrade packages<a class="headerlink" href="#step-3-upgrade-packages" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Due to updated packages in the recent CentOS 7 (1511) release, it is
+critical that you upgrade operating system packages on all servers
+before proceeding with the deployment:</p>
+</div>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook playbooks/upgrade-packages.yml
+</pre></div>
+</div>
+<p>If you neglect to upgrade packages, you will likely experience multiple
+failures, particularly around Consul. See issues <a class="reference external" href="https://github.com/CiscoCloud/mantl/issues/907">907</a> and <a class="reference external" href="https://github.com/CiscoCloud/mantl/issues/927">927</a> for more
+details.</p>
+</div>
+<div class="section" id="step-4-deploy-the-software">
+<h3>Step 4: Deploy the software<a class="headerlink" href="#step-4-deploy-the-software" title="Permalink to this headline">¶</a></h3>
+<p>First, you will need to customize a playbook. A sample can be found at
+<tt class="docutils literal"><span class="pre">sample.yml</span></tt> in the root directory which you can copy to <tt class="docutils literal"><span class="pre">mantl.yml</span></tt>.  You
+can find more about customizing this at <a class="reference external" href="http://docs.ansible.com/ansible/playbooks.html">playbooks</a>. You&#8217;ll want to change
+<tt class="docutils literal"><span class="pre">consul_acl_datacenter</span></tt> to your preferred ACL datacenter. If you only have
+one datacenter, you can remove this variable.</p>
+<p>Next, assuming you&#8217;ve placed the filled-out template at <tt class="docutils literal"><span class="pre">mantl.yml</span></tt>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook -e @security.yml mantl.yml
+</pre></div>
+</div>
+<p>The deployment will probably take a while as all tasks are completed.</p>
+</div>
+</div>
+<div class="section" id="checking-your-deployment">
+<h2>Checking your deployment<a class="headerlink" href="#checking-your-deployment" title="Permalink to this headline">¶</a></h2>
+<p>Once your deployment has completed, you will be able to access the Mantl UI
+in your browser by connecting to one of the control nodes.</p>
+<p>If you need the IP address of your nodes, you can use <tt class="docutils literal"><span class="pre">terraform.py</span></tt>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ python2 plugins/inventory/terraform.py --hostfile
+<span class="c1">## begin hosts generated by terraform.py ##</span>
+xxx.xxx.xxx.xxx         mantl-control-01
+xxx.xxx.xxx.xxx         mantl-control-02
+xxx.xxx.xxx.xxx         mantl-control-03
+xxx.xxx.xxx.xxx         mantl-edge-01
+xxx.xxx.xxx.xxx         mantl-edge-02
+xxx.xxx.xxx.xxx         mantl-worker-001
+xxx.xxx.xxx.xxx         mantl-worker-002
+xxx.xxx.xxx.xxx         mantl-worker-003
+<span class="c1">## end hosts generated by terraform.py ##</span>
+</pre></div>
+</div>
+<p>When you enter a control node&#8217;s IP address into your browser, you&#8217;ll likely get
+prompted about invalid security certificates (if you have SSL/TLS turned on).
+Follow your browser&#8217;s instructions on how to access a site without valid
+certs. Then, you will be presented with a basic access authentication prompt.
+The username and password for this are the ones generated by <tt class="docutils literal"><span class="pre">security-setup</span></tt>,
+and are stored in <tt class="docutils literal"><span class="pre">security.yml</span></tt> if you forgot them.</p>
+<p>Here is what you should be looking at after you connect and authenticate:</p>
+<a class="reference external image-reference" href="https://github.com/CiscoCloud/nginx-mantlui"><img alt="Screenshot of Mantl UI in action" src="https://raw.githubusercontent.com/CiscoCloud/nginx-mantlui/master/screenshot.png" /></a>
+<p>Click the image to go to the <a class="reference external" href="https://github.com/CiscoCloud/nginx-mantlui">GitHub project</a></p>
+<div class="section" id="customizing-your-deployment">
+<h3>Customizing your deployment<a class="headerlink" href="#customizing-your-deployment" title="Permalink to this headline">¶</a></h3>
+<p>Below are guides customizing your deployment:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ssh_users.html">Adding SSH Users</a></li>
+<li class="toctree-l1"><a class="reference internal" href="playbook.html">Custom Playbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dockerfile.html">Using the Dockerfile</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="restarting-your-deployment">
+<h3>Restarting your deployment<a class="headerlink" href="#restarting-your-deployment" title="Permalink to this headline">¶</a></h3>
+<p>To restart your deployment and make sure all components are restarted and
+working correctly, use the <tt class="docutils literal"><span class="pre">playbooks/reboot-hosts.yml</span></tt> playbook.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>ansible-playbook playbooks/reboot-hosts.yml
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-a-docker-container-to-provision-your-cluster">
+<h3>Using a Docker Container to Provision your Cluster<a class="headerlink" href="#using-a-docker-container-to-provision-your-cluster" title="Permalink to this headline">¶</a></h3>
+<p>You can also provision your cluster by running a docker container. See
+<a class="reference internal" href="dockerfile.html"><em>Using the Dockerfile</em></a> for more information.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/index.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

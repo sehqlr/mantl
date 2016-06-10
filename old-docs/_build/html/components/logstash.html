@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Logstash &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Components" href="index.html" />
+    <link rel="next" title="Marathon" href="marathon.html" />
+    <link rel="prev" title="Kubernetes" href="kubernetes.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="marathon.html" title="Marathon"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="kubernetes.html" title="Kubernetes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Components</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="logstash">
+<h1>Logstash<a class="headerlink" href="#logstash" title="Permalink to this headline">¶</a></h1>
+<p>Logging role for deploying and managing <a class="reference external" href="http://logstash.net">Logstash</a>
+with Docker and systemd as a part of the ELK stack.</p>
+<div class="section" id="variables">
+<h2>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h2>
+<p>You can use these variables to customize your Logstash installations:</p>
+<dl class="data">
+<dt id="logstash_output_stdout">
+<tt class="descname">logstash_output_stdout</tt><a class="headerlink" href="#logstash_output_stdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple output which prints to the STDOUT</p>
+<p>Default: false</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="logstash_output_elasticsearch">
+<tt class="descname">logstash_output_elasticsearch</tt><a class="headerlink" href="#logstash_output_elasticsearch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures an elasticsearch output for the local Logstash agent on all nodes.
+You can set this variable to a dictionary that maps to the <a class="reference external" href="https://www.elastic.co/guide/en/logstash/1.5/plugins-outputs-elasticsearch.html">Logstash
+Elasticsearch output</a>
+settings.</p>
+<p>This is not needed if you are planning to use the Mantl ELK addon. Use this
+if you want to send Logstash data to an Elasticsearch cluster that is not
+managed by Mantl.</p>
+<p>Default: n/a</p>
+<p>Example:</p>
+</dd></dl>
+
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">logstash_output_elasticsearch</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">host</span><span class="p p-Indicator">:</span> <span class="s">&quot;elasticsearch.example.com&quot;</span>
+  <span class="l l-Scalar l-Scalar-Plain">protocol</span><span class="p p-Indicator">:</span> <span class="s">&quot;http&quot;</span>
+</pre></div>
+</div>
+<dl class="data">
+<dt id="logstash_output_kafka">
+<tt class="descname">logstash_output_kafka</tt><a class="headerlink" href="#logstash_output_kafka" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configures an elasticsearch output for a Kafka cluster. You can set this
+variable to a dictionary that maps to the <a class="reference external" href="https://www.elastic.co/guide/en/logstash/1.5/plugins-outputs-kafka.html">Logstash Kafka output</a>
+settings.</p>
+<p>Default: n/a</p>
+<p>Example:</p>
+</dd></dl>
+
+<div class="highlight-yaml"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">logstash_output_kafka</span><span class="p p-Indicator">:</span>
+  <span class="l l-Scalar l-Scalar-Plain">broker_list</span><span class="p p-Indicator">:</span> <span class="s">&quot;broker1:port,broker2:port,...&quot;</span>
+  <span class="l l-Scalar l-Scalar-Plain">topic_id</span><span class="p p-Indicator">:</span> <span class="s">&quot;logstash&quot;</span>
+</pre></div>
+</div>
+<dl class="data">
+<dt id="logstash_input_log4j">
+<tt class="descname">logstash_input_log4j</tt><a class="headerlink" href="#logstash_input_log4j" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read events over a TCP socket from a Log4j SocketAppender</p>
+<p>Default: false</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="logstsh_log4j_port">
+<tt class="descname">logstsh_log4j_port</tt><a class="headerlink" href="#logstsh_log4j_port" title="Permalink to this definition">¶</a></dt>
+<dd><p>TCP port</p>
+<p>Default: 4560</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started/index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Components</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calico.html">Calico</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chronos.html">Chronos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collectd.html">Collectd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul.html">Consul</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributive.html">Distributive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dnsmasq.html">dnsmasq</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elk.html">ELK</a></li>
+<li class="toctree-l2"><a class="reference internal" href="etcd.html">etcd</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glusterfs.html">GlusterFS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="haproxy.html">Haproxy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kafka.html">Kafka</a></li>
+<li class="toctree-l2"><a class="reference internal" href="kubernetes.html">Kubernetes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Logstash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="marathon.html">Marathon</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mesos.html">Mesos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="traefik.html">Traefik</a></li>
+<li class="toctree-l2"><a class="reference internal" href="zookeeper.html">ZooKeeper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common</a></li>
+<li class="toctree-l2"><a class="reference internal" href="consul-template.html">consul-template</a></li>
+<li class="toctree-l2"><a class="reference internal" href="logrotate.html">logrotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nginx.html">Nginx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vault.html">Vault</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/components/logstash.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>

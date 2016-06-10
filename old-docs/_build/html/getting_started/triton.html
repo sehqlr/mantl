@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Triton &mdash; Mantl 1.0.3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0.3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Mantl 1.0.3 documentation" href="../index.html" />
+    <link rel="up" title="Getting Started" href="index.html" />
+    <link rel="next" title="DNS" href="dns.html" />
+    <link rel="prev" title="Vagrant" href="vagrant.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="dns.html" title="DNS"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="vagrant.html" title="Vagrant"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">Mantl 1.0.3 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Getting Started</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="triton">
+<h1>Triton<a class="headerlink" href="#triton" title="Permalink to this headline">¶</a></h1>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 1.1.</span></p>
+</div>
+<p>As of Mantl 1.1 you can bring a Mantl cluster up on Joyent&#8217;s Triton. Please be
+sure to use at least Terraform 0.6.15: the first version with the required
+resources.</p>
+<div class="section" id="configuring-triton-for-terraform">
+<h2>Configuring Triton for Terraform<a class="headerlink" href="#configuring-triton-for-terraform" title="Permalink to this headline">¶</a></h2>
+<p>Before we can build any servers using Terraform and Ansible, we need to
+configure authentication. We&#8217;ll be filling in the authentication variables for
+the template located at <tt class="docutils literal"><span class="pre">terraform/triton.sample.tf</span></tt>. The beginning of it
+looks like this:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span># this sample assumes that you have `SDC_ACCOUNT`, `SDC_KEY_MATERIAL`,
+# `SDC_KEY_ID`, and `SDC_URL` in your environment from (for example) using the
+# Triton command-line utilities. If you don&#39;t, set `account`, `key_material`,
+# `key_id`, and `url` in the provider below
+provider &quot;triton&quot; {}
+
+variable key_path { default = &quot;~/.ssh/id_rsa.pub&quot; }
+</pre></div>
+</div>
+<p>Copy <tt class="docutils literal"><span class="pre">terraform/triton.sample.tf</span></tt> in it&#8217;s entierty to the root of the project
+as <tt class="docutils literal"><span class="pre">triton.tf</span></tt> to start customization. In the next section, we&#8217;ll explain how
+to obtain the settings mentioned above.</p>
+<div class="section" id="basic-settings">
+<h3>Basic Settings<a class="headerlink" href="#basic-settings" title="Permalink to this headline">¶</a></h3>
+<p>First, we&#8217;ll need an account. This is the username you use to log into Triton.
+You can create an account at <a class="reference external" href="https://www.joyent.com">joyent.com</a>; refer to
+their <a class="reference external" href="https://docs.joyent.com/public-cloud/getting-started">getting started documentation</a> for more information.
+Use the <tt class="docutils literal"><span class="pre">SDC_ACCOUNT</span></tt> environment variable, or set <tt class="docutils literal"><span class="pre">account</span></tt> in the provider
+(see sample below.)</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">new Joyent accounts may be subject to provisioning limits. <a class="reference external" href="https://docs.joyent.com/public-cloud/getting-started/limits">Contact Joyent
+support</a> to
+have those limits raised.</p>
+</div>
+<p>We&#8217;ll also need your key material and ID. Key material is the material of the
+public key used to authenticate requests. You can set <tt class="docutils literal"><span class="pre">SDC_KEY_MATERIAL</span></tt> with
+this info, or use Terraform&#8217;s <tt class="docutils literal"><span class="pre">file</span></tt> interpolation, shown below. They key ID
+is displayed in your Triton account page, but you can obtain it by running
+<tt class="docutils literal"><span class="pre">ssh-keygen</span> <span class="pre">-l</span> <span class="pre">-E</span> <span class="pre">md5</span> <span class="pre">-f</span> <span class="pre">/path/to/your/key/id_rsa.pub</span></tt>. Set this as <tt class="docutils literal"><span class="pre">key_id</span></tt>
+or <tt class="docutils literal"><span class="pre">SDC_KEY_ID</span></tt> in the environment.</p>
+<p>Last, you&#8217;ll need to specify the datacenter you want to operate in (key:
+<tt class="docutils literal"><span class="pre">url</span></tt>.) The default is <tt class="docutils literal"><span class="pre">us-east-1</span></tt>, and the general format is
+<tt class="docutils literal"><span class="pre">https://{datacenter-slug}.api.joyentcloud.com</span></tt>. If unset, this will be pulled
+from <tt class="docutils literal"><span class="pre">SDC_URL</span></tt>. You can select from any of <a class="reference external" href="https://docs.joyent.com/public-cloud/data-centers">Joyent&#8217;s public data centers</a>, or enter a custom URL for
+<a class="reference external" href="https://github.com/joyent/sdc">a private data center</a>.</p>
+<p>Finally, here&#8217;s an example with the variables set:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span>provider &quot;triton&quot; {
+    account      = &quot;AccountName&quot;
+    key_material = &quot;${file(&quot;~/.ssh/id_rsa.pub&quot;)}&quot;
+    key_id       = &quot;25:d4:a9:fe:ef:e6:c0:bf:b4:4b:4b:d4:a8:8f:01:0f&quot;
+
+    # specify the datacenter by giving the API URL
+    url = &quot;https://us-east-1.api.joyentcloud.com&quot;
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="provisioning">
+<h2>Provisioning<a class="headerlink" href="#provisioning" title="Permalink to this headline">¶</a></h2>
+<p>Once your provider is set up, customize your modules (mainly for the variables
+ending in <tt class="docutils literal"><span class="pre">_count</span></tt> to control scaling.) Run <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">get</span></tt> to prepare the
+modules, <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">plan</span></tt> to see what will be created, and <tt class="docutils literal"><span class="pre">terraform</span> <span class="pre">apply</span></tt>
+to provision the cluster. Afterwards, you can use the instructions in
+<a class="reference internal" href="index.html"><em>getting started</em></a> to install Mantl on your new cluster.</p>
+</div>
+<div class="section" id="configuring-dns">
+<h2>Configuring DNS<a class="headerlink" href="#configuring-dns" title="Permalink to this headline">¶</a></h2>
+<p>You can set up your DNS records with Terraform:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dns.html">DNS</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/cisco.png" alt="Logo"/>
+    
+    <h1 class="logo logo-name">Mantl</h2>
+    
+  </a>
+</p>
+
+
+
+
+
+<p>
+<iframe src="http://ghbtns.com/github-btn.html?user=ciscocloud&repo=mantl&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html#general-information-about-mantl-with-ansible">General Information about Mantl with Ansible</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#preparing-to-provision-cloud-hosts">Preparing to provision Cloud Hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#deploying-software-via-ansible">Deploying software via Ansible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#checking-your-deployment">Checking your deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../components/index.html">Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../addons.html">Addons</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../security/index.html">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../upgrading/index.html">Upgrading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packer.html">Packer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">Licenses</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2015, Cisco Systems, Incorporated.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.2.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.6.3</a>
+      
+      |
+      <a href="../_sources/getting_started/triton.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
