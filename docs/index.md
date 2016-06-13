@@ -10,8 +10,6 @@ services. Please see [the
 README](https://github.com/CiscoCloud/mantl/blob/master/README.md) for a
 high level overview.
 
-[TOC]
-
 [Changelog](https://github.com/CiscoCloud/mantl/blob/master/CHANGELOG.md)
 
 

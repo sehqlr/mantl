@@ -4,12 +4,11 @@ repo_url: https://github.com/CiscoCloud/mantl
 copyright: "2016 Cisco Systems"
 markdown_extensions:
         - extra
-        - toc:
-                permalink: True
 pages:
         - 'index.md'
         - "Core Components":
                 - "core/consul.md"
+                - "core/vault.md"
         - "Addon Components":
                 - 'addons/kafka.md'
 theme: readthedocs
