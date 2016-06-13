@@ -1,5 +1,5 @@
 
-![image](./mantl-logo-1.png)
+![image](img/mantl-logo-1.png)
 
 # Overview
 
@@ -80,7 +80,7 @@ The base platform contains control nodes that manage the cluster and any number
 of resource nodes. Containers automatically register themselves into DNS so
 that other services can locate them.
 
-![Single-DC](docs/_static/single_dc.png)
+![Single-DC](img/single_dc.png)
 
 ### Control Nodes
 
@@ -94,34 +94,34 @@ automatically bootstrap and join multiple Consul nodes. The Mesos role will
 provision highly-availabile Mesos and ZooKeeper environments when more than one
 node is provisioned.
 
-![Control Node](docs/_static/control_node.png)
+![Control Node](img/control_node.png)
 
 ### Resource Nodes
 
 Resource nodes launch containers and other Mesos-based workloads.
 
-![Resource Node](docs/_static/resource_node.png)
+![Resource Node](img/resource_node.png)
 
 ### Edge Nodes
 
 Edge nodes are responsible for proxying external traffic into services running
 in the cluster.
 
-![Edge Node](docs/_static/edge_node.png)
+![Edge Node](img/edge_node.png)
 
 ## Getting Started
 
 All development is done on the `master` branch. Tested, stable versions are
 identified via git tags. To get started, you can clone or fork this repo:
 
-```
+```shell
 git clone https://github.com/CiscoCloud/mantl.git
 
 ```
 
 To use a stable version, use `git tag` to list the stable versions:
 
-```
+```shell
 git tag
 0.1.0
 0.2.0
@@ -135,7 +135,7 @@ git checkout 1.0.2
 A Vagrantfile is provided that provisions everything on a few VMs. To run,
 first ensure that your system has at least 2GB of RAM free, then just:
 
-```
+```shell
 vagrant up
 ```
 

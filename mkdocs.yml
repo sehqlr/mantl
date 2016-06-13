@@ -2,9 +2,14 @@ site_name: Mantl
 site_url: https://mantl.io
 repo_url: https://github.com/CiscoCloud/mantl
 copyright: "2016 Cisco Systems"
+markdown_extensions:
+        - extra
+        - toc:
+                permalink: True
 pages:
         - 'index.md'
         - "Core Components":
-                - "consul.md"
+                - "core/consul.md"
         - "Addon Components":
-                - 'kafka.md'
+                - 'addons/kafka.md'
+theme: readthedocs
