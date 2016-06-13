@@ -1,7 +1,8 @@
 Consul
 ======
 
-Added in 0.1
+!!! note ""
+    new in version 0.1
 
 [Consul](https://www.consul.io/) is used in the project to coordinate
 service discovery, specifically using the inbuilt DNS server.

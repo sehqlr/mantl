@@ -1,7 +1,8 @@
 Vault
 =====
 
-Version Added:: 0.3.0
+!!! note ""
+    new in version 0.3.0
 
 [Vault](https://www.vaultproject.io/) "secures, stores, and tightly
 controls access to tokens, passwords, certificates, API keys, and other

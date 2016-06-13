@@ -1,7 +1,8 @@
 Mesos
 =====
 
-Version Added:: 0.1
+!!! note ""
+    new in version 0.1
 
 [Mesos](https://mesos.apache.org/) is the distributed system kernel that
 manages resources across multiple nodes. When combined with marathon,
@@ -37,7 +38,8 @@ availability counts in the cluster.
 Upgrading
 ---------
 
-Version Added:: 1.0
+!!! note "file `playbooks/upgrade-mesos-marathon.yml`"
+    new in version 1.0
 
 If you are running Mantl 0.5.1, you'll need to run the
 `playbooks/upgrade-mesos-marathon.yml` playbook before reprovisioning
