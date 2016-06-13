@@ -9,6 +9,7 @@ pages:
         - "Core Components":
                 - "core/consul.md"
                 - "core/vault.md"
+                - "core/mesos.md"
         - "Addon Components":
                 - 'addons/kafka.md'
 theme: readthedocs
