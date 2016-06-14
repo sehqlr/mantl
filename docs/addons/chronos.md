@@ -91,11 +91,9 @@ you can run the following steps to disable the existing Chronos install.
 	Please note that you will need to recreate any tasks you already have
 	scheduled in Chronos. They will not be automatically migrated.
 
-```shell
-ansible 'role=control' -s -m shell -a 'consul-cli service-deregister chronos'
-ansible 'role=control' -s -m shell -a 'rm /etc/consul/chronos.json'
-ansible 'role=control' -s -m service -a 'name=chronos enabled=no state=stopped'
-```
+		ansible 'role=control' -s -m shell -a 'consul-cli service-deregister chronos'
+		ansible 'role=control' -s -m shell -a 'rm /etc/consul/chronos.json'
+		ansible 'role=control' -s -m service -a 'name=chronos enabled=no state=stopped'
 
 The new method of installing Chronos requires a version of mantl-api
 later than 0.1.7. You can upgrade mantl-api manually, or run a sample

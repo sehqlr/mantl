@@ -16,5 +16,6 @@ pages:
     - "Addon Components":
         - 'addons/chronos.md'
         - 'addons/elk.md'
+        - 'addons/glusterfs.md'
         - 'addons/kafka.md'
 theme: readthedocs
