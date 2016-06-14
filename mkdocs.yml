@@ -3,17 +3,18 @@ site_url: https://mantl.io
 repo_url: https://github.com/CiscoCloud/mantl
 copyright: "2016 Cisco Systems"
 markdown_extensions:
-        - extra
-        - admonition
+    - extra
+    - admonition
 pages:
-        - 'index.md'
-        - "Core Components":
-                - "core/consul.md"
-                - "core/vault.md"
-                - "core/mesos.md"
-                - "core/marathon.md"
-                - "core/docker.md"
-        - "Addon Components":
-                - 'addons/chronos.md'
-                - 'addons/kafka.md'
+    - 'index.md'
+    - "Core Components":
+        - "core/consul.md"
+        - "core/vault.md"
+        - "core/mesos.md"
+        - "core/marathon.md"
+        - "core/docker.md"
+    - "Addon Components":
+        - 'addons/chronos.md'
+        - 'addons/elk.md'
+        - 'addons/kafka.md'
 theme: readthedocs
