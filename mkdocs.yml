@@ -13,6 +13,7 @@ pages:
         - "core/mesos.md"
         - "core/marathon.md"
         - "core/docker.md"
+        - "core/traefik.md"
     - "Addon Components":
         - 'addons/chronos.md'
         - 'addons/elk.md'
