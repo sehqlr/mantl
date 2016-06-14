@@ -14,5 +14,6 @@ pages:
                 - "core/marathon.md"
                 - "core/docker.md"
         - "Addon Components":
+                - 'addons/chronos.md'
                 - 'addons/kafka.md'
 theme: readthedocs
