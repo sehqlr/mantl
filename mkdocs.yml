@@ -12,6 +12,7 @@ pages:
                 - "core/vault.md"
                 - "core/mesos.md"
                 - "core/marathon.md"
+                - "core/docker.md"
         - "Addon Components":
                 - 'addons/kafka.md'
 theme: readthedocs
