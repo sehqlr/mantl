@@ -115,11 +115,15 @@ Thus, you have the option to query Consul in two ways:
 1.  In order to obtain Docker host IP addresses where your workload is
     running:
 
-        dig @localhost -p 8600 testapp.service.consul
+```shell
+dig @localhost -p 8600 testapp.service.consul
+```
 
 2.  To resolve IP addresses from the Calico network:
 
-        dig @localhost -p 8600 testapp-direct.service.consul
+```shell
+dig @localhost -p 8600 testapp-direct.service.consul
+```
 
 In the above examples, adjust the .consul domain as needed if you
 customized it when building your cluster.
@@ -155,19 +159,17 @@ You can use these variables to customize your Calico installation. For
 more information, refer to the etcd configuration.
 
 etcd\_service\_name
-:   Set the `ETCD_AUTHORITY` environment variable that is used by Calico
-:   Docker container and the CLI tool `calicoctl`. The value of this
-:   variable is a Consul service that must be resolved through DNS
-:   **default**: `etcd.service.consul`
+:    Set the `ETCD_AUTHORITY` environment variable that is used by Calico Docker container and the CLI tool `calicoctl`. The value of this variable is a Consul service that must be resolved through DNS
+:    **default**: `etcd.service.consul`
 
 etcd\_client\_port
-:   Port for etcd client communication
-:   **default**: `2379`
+:    Port for etcd client communication
+:    **default**: `2379`
 
 calico\_network
-:   Containers are assigned IPs from this network range
-:   **default**: `192.168.0.0/16`
+:    Containers are assigned IPs from this network range
+:    **default**: `192.168.0.0/16`
 
 calico\_profile
-:   Endpoints are added to this profile for interconnectivity
-:   **default**: `dev`
+:    Endpoints are added to this profile for interconnectivity
+:    **default**: `dev`
